@@ -1,0 +1,38 @@
+﻿//-----------------------------------------------------------------------
+// <copyright file="IAccountBL.cs" company="BridgeLabz">
+//     Company copyright tag.
+// </copyright>
+// <creater name="Sandhya Patil"/>
+//-----------------------------------------------------------------------
+namespace BussinessLayer.Interface
+{
+    using CommonLayer.Model;
+    using CommonLayer.Response;
+    using System.Threading.Tasks;
+
+    public interface IAccountBL
+    {
+        /// <summary>
+        /// User Sign Up method 
+        /// </summary>
+        /// <param name="registerModel">registerModel parameter</param>
+        /// <returns>returns the register user</returns>
+        Task<RegisterResponseModel> UserSignUp(RegisterModel registerModel);
+
+        /// <summary>
+        /// User Login method
+        /// </summary>
+        /// <param name="loginModel">loginModel parameter</param>
+        /// <returns>returns the login user</returns>
+        Task<LoginResponseModel> UserLogin(LoginModel loginModel);
+
+        /// <summary>
+        /// Forget Password method
+        /// </summary>
+        /// <param name="forgetModel">forgetModel parameter</param>
+        /// <returns>return reset link</returns>
+        Task<string> ForgetPassword(ForgetModel forgetModel);
+
+        Task<string> ResetPassword(ResetModel resetModel);
+    }
+}
