@@ -51,6 +51,7 @@ namespace RepositoryLayer.Token
                       //   new Claim("Password", userData.Password.ToString()),
                         };
 
+            ////Security tken
             var token = new JwtSecurityToken("Security token", "https://Test.com",
                 claims,
                 DateTime.UtcNow,

@@ -12,6 +12,9 @@ namespace GoogleKeepAPI.Controllers
     using CommonLayer.Model;
     using Microsoft.AspNetCore.Mvc;
 
+    /// <summary>
+    /// AccountController class
+    /// </summary>
     [Route("api/[controller]")]
     [ApiController]
     public class AccountController : ControllerBase

@@ -10,6 +10,9 @@ namespace BussinessLayer.Interface
     using CommonLayer.Response;
     using System.Threading.Tasks;
 
+    /// <summary>
+    /// IAccountBL interface
+    /// </summary>
     public interface IAccountBL
     {
         /// <summary>

@@ -24,7 +24,7 @@ namespace RepositoryLayer.Service
     using System.Threading.Tasks;
 
     /// <summary>
-    /// AccountRL class
+    /// Account Repository Layer class
     /// </summary>
     public class AccountRL : IAccountRL
     {
