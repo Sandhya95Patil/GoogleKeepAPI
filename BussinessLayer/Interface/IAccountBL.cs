@@ -33,6 +33,11 @@ namespace BussinessLayer.Interface
         /// <returns>return reset link</returns>
         Task<string> ForgetPassword(ForgetModel forgetModel);
 
+        /// <summary>
+        /// Reset Password method
+        /// </summary>
+        /// <param name="resetModel">resetModel parameter</param>
+        /// <returns>returns the reset password</returns>
         Task<string> ResetPassword(ResetModel resetModel);
     }
 }
