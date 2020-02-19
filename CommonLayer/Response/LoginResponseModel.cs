@@ -55,5 +55,6 @@ namespace CommonLayer.Response
         /// Get and Set token
         /// </summary>
         public string Token { get; set; }
+        public string LoginTime { get; set; }
     }
 }

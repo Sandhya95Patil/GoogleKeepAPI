@@ -7,13 +7,16 @@
 namespace GoogleKeepAPI
 {
     using System.Collections.Generic;
+    using System.Text;
     using BussinessLayer.Interface;
     using BussinessLayer.Service;
+    using Microsoft.AspNetCore.Authentication.JwtBearer;
     using Microsoft.AspNetCore.Builder;
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
+    using Microsoft.IdentityModel.Tokens;
     using RepositoryLayer.Interface;
     using RepositoryLayer.Service;
     using Swashbuckle.AspNetCore.Swagger;
@@ -33,6 +36,9 @@ namespace GoogleKeepAPI
             services.AddTransient<IAccountBL, AccountBL>();
             services.AddTransient<IAccountRL, AccountRL>();
 
+            services.AddTransient<INotesBL, NotesBL>();
+            services.AddTransient<INotesRL, NotesRL>();
+
             ////This is For Swagger Generaion
             services.AddSwaggerGen(c =>
             {
@@ -50,6 +56,29 @@ namespace GoogleKeepAPI
                { "Bearer", new string[] {} }
              });
             });
+            ////End For Swagger
+
+            ////This is for Token authentication
+            var key = Encoding.UTF8.GetBytes(Configuration["Token:token"]);
+            services.AddAuthentication(x =>
+            {
+                x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                x.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+            }).AddJwtBearer(x =>
+            {
+                x.RequireHttpsMetadata = false;
+                x.SaveToken = false;
+                x.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(key),
+                    ValidateIssuer = false,
+                    ValidateAudience = false,
+                    //ClockSkew = TimeSpan.Zero
+                };
+            });
+            ////End for token
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
         }
@@ -70,6 +99,8 @@ namespace GoogleKeepAPI
             {
                 c.SwaggerEndpoint("/swagger/v1.0/swagger.json", "Versioned API v1.0");
             });
+
+            app.UseAuthentication();
             app.UseHttpsRedirection();
             app.UseMvc();
         }
