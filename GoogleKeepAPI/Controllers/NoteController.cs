@@ -45,7 +45,7 @@ namespace GoogleKeepAPI.Controllers
 
         [HttpPut]
         [Route("{noteId}")]
-        public async Task<IActionResult> UpdateNote(ShowNoteModel showNoteModel, int noteId)
+        public async Task<IActionResult> UpdateNote(ShowUpdateNoteModel showNoteModel, int noteId)
         {
             try
             {
@@ -65,5 +65,51 @@ namespace GoogleKeepAPI.Controllers
                 return this.BadRequest(new { message = exception.Message });
             }
         }
+        [HttpGet]
+        [Route("")]
+        public async Task<IActionResult> GetAllNotes()
+        {
+            try
+            {
+                var claim = Convert.ToInt32(HttpContext.User.Claims.FirstOrDefault(c => c.Type == "Id").Value);
+                var data = await noteBL.GetAllNotes(claim);
+                if (data != null)
+                {
+                    return this.Ok(new { status = "true", message = "AllNotes", data });
+                }
+                else
+                {
+                    return this.BadRequest(new { status = "false", message = "Failed To Get All Notes" });
+                }
+            }
+            catch (Exception exception)
+            {
+                return this.BadRequest(new { message = exception.Message });
+            }
+        }
+
+        [HttpDelete]
+        [Route("{noteId}")]
+        public async Task<IActionResult> DeleteNote(int noteId)
+        {
+            try
+            {
+                var claim = Convert.ToInt32(HttpContext.User.Claims.FirstOrDefault(c => c.Type == "Id").Value);
+                var data = await noteBL.DeleteNote(claim, noteId);
+                if (data != null)
+                {
+                    return this.Ok(new { status = "true", message = "Delete Note Successfully" });
+                }
+                else
+                {
+                    return this.BadRequest(new { status = "false", message = "Failed To Delete Note" });
+                }
+            }
+            catch (Exception exception)
+            {
+                return this.BadRequest(new { message = exception.Message });
+            }
+        }
+
     }
 }
