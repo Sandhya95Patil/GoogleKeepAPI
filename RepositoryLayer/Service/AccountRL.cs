@@ -14,6 +14,7 @@ namespace RepositoryLayer.Service
     using RepositoryLayer.Interface;
     using RepositoryLayer.MSMQ;
     using RepositoryLayer.Token;
+    using ServiceStack.Redis;
     using System;
     using System.Data;
     using System.Data.SqlClient;
@@ -105,11 +106,11 @@ namespace RepositoryLayer.Service
             {
                 var password = PasswordEncrypt.Encryptdata(loginModel.Password);
 
-                SqlConnection sqlConnection = new SqlConnection(configuration["ConnectionStrings: connectionDb"]);
+                SqlConnection sqlConnection = new SqlConnection(configuration["ConnectionStrings:connectionDb"]);
                 SqlCommand sqlCommand = new SqlCommand("LoginUser", sqlConnection);
                 sqlCommand.CommandType = CommandType.StoredProcedure;
                 sqlCommand.Parameters.AddWithValue("@Email", loginModel.Email);
-                sqlCommand.Parameters.AddWithValue("@Password", loginModel.Password);
+                sqlCommand.Parameters.AddWithValue("@Password", password);
                 sqlConnection.Open();
                 SqlDataReader sqlDataReader = await sqlCommand.ExecuteReaderAsync();
                 var userData = new RegisterModel();
@@ -149,6 +150,23 @@ namespace RepositoryLayer.Service
                             signingCredentials: creadintials);
                         var returnToken = new JwtSecurityTokenHandler().WriteToken(token);
 
+                        /*var loginTime = DateTime.Now.ToString();
+                        RedisEndpoint redisEndpoint = new RedisEndpoint("localhost", 6379);
+                        using (RedisClient client = new RedisClient(redisEndpoint))
+                        {
+                            if (client.Get<string>(loginModel.Email + loginModel.Password) == null)
+                            {
+                                client.Set<string>(loginModel.Email + loginModel.Password, loginTime);
+                                loginTime = client.Get<string>(loginModel.Email + loginModel.Password);
+                            }
+                            else
+                            {
+                                client.Remove(loginModel.Email + loginModel.Password);
+                                client.Set<string>(loginModel.Email + loginModel.Password, loginTime);
+                                loginTime = client.Get<string>(loginModel.Email + loginModel.Password);
+                            }
+                        }*/
+
                         var responseShow = new LoginResponseModel()
                         {
                             Id=userData.Id,
@@ -159,7 +177,8 @@ namespace RepositoryLayer.Service
                             Profile=userData.Profile,
                             Service=userData.Service,
                             UserType=userData.UserType,
-                            Token = returnToken
+                            Token = returnToken,
+                          //  LoginTime=loginTime
                         };
                         return responseShow;
                     }
@@ -188,7 +207,7 @@ namespace RepositoryLayer.Service
         {
             try
             {
-                SqlConnection sqlConnection = new SqlConnection(configuration["ConnectionStrings: connectionDb"]);
+                SqlConnection sqlConnection = new SqlConnection(configuration["ConnectionStrings:connectionDb"]);
                 SqlCommand sqlCommand = new SqlCommand("ForgetPassword", sqlConnection);
                 sqlCommand.CommandType = CommandType.StoredProcedure;
                 sqlCommand.Parameters.AddWithValue("@Email", forgetModel.Email);
@@ -234,7 +253,7 @@ namespace RepositoryLayer.Service
             {
                 string pass = PasswordEncrypt.Encryptdata(resetModel.NewPassword);
 
-                SqlConnection sqlConnection = new SqlConnection(configuration["ConnectionStrings: connectionDb"]);
+                SqlConnection sqlConnection = new SqlConnection(configuration["ConnectionStrings:connectionDb"]);
                 SqlCommand sqlCommand = new SqlCommand("ResetPassword", sqlConnection);
                 sqlCommand.CommandType = CommandType.StoredProcedure;
 
@@ -248,12 +267,12 @@ namespace RepositoryLayer.Service
                 var tokenS = handler.ReadToken(resetModel.ResetToken) as JwtSecurityToken;
 
                 ////claim for id
-                var userid = tokenS.Claims.FirstOrDefault(claim => claim.Type == "Id").Value;
+             //   var userid = tokenS.Claims.FirstOrDefault(claim => claim.Type == "Id").Value;
 
                 ////claim for email
                 var jwtEmail = tokenS.Claims.FirstOrDefault(claim => claim.Type == "Email").Value;
 
-                sqlCommand.Parameters.AddWithValue("Id", userid);
+                sqlCommand.Parameters.AddWithValue("Email", jwtEmail);
                 sqlCommand.Parameters.AddWithValue("NewPassword", pass);
                 sqlConnection.Open();
                 ////save the changes asynchronuosly
