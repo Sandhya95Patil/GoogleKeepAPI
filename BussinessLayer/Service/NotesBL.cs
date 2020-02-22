@@ -10,6 +10,7 @@ namespace BussinessLayer.Service
     using CommonLayer.Model;
     using CommonLayer.Response;
     using CommonLayer.ShowModel;
+    using Microsoft.AspNetCore.Http;
     using RepositoryLayer.Interface;
     using System;
     using System.Collections.Generic;
@@ -18,7 +19,7 @@ namespace BussinessLayer.Service
     /// <summary>
     /// NotesBL class
     /// </summary>
-    public class NotesBL : INotesBL
+    public class NotesBL :  INotesBL
     {
         /// <summary>
         /// Inject the notes interface of repository layer
@@ -104,6 +105,139 @@ namespace BussinessLayer.Service
             {
                 throw new Exception(exception.Message);
             }
-        } 
+        }
+
+        public async Task<NoteModel> ArchiveNote(int userId, int noteId)
+        {
+            try
+            {
+                if (userId > 0 && noteId > 0)
+                {
+                    return await noteRL.ArchiveNote(userId, noteId);
+                }
+                else
+                {
+                    return null;
+                }
+            }
+            catch (Exception exception)
+            {
+                throw new Exception(exception.Message);
+            }
+        }
+
+        public async Task<NoteModel> TrashNote(int userId, int noteId)
+        {
+            try
+            {
+                if (userId > 0 && noteId > 0)
+                {
+                    return await noteRL.TrashNote(userId, noteId);
+                }
+                else
+                {
+                    return null;
+                }
+            }
+            catch (Exception exception)
+            {
+                throw new Exception(exception.Message);
+            }
+        }
+
+        public async Task<NoteModel> PinNote(int userId, int noteId)
+        {
+            try
+            {
+                if (userId > 0 && noteId > 0)
+                {
+                    return await noteRL.PinNote(userId, noteId);
+                }
+                else
+                {
+                    return null;
+                }
+            }
+            catch (Exception exception)
+            {
+                throw new Exception(exception.Message);
+            }
+        }
+
+        public async Task<NoteModel> ChangeColor(int userId, int noteId, ColorModel colorModel)
+        {
+            try
+            {
+                if (userId > 0 && noteId > 0)
+                {
+                    return await noteRL.ChangeColor(userId, noteId, colorModel);
+                }
+                else
+                {
+                    return null;
+                }
+            }
+            catch (Exception exception)
+            {
+                throw new Exception(exception.Message);
+            }
+        }
+
+        public Task<NoteModel> AddReminder(int userId, int noteId, DateTime dateTime)
+        {
+            try
+            {
+                if (userId > 0 && noteId > 0)
+                {
+                    return noteRL.AddReminder(userId, noteId, dateTime);
+                }
+                else
+                {
+                    return null;
+                }
+            }
+            catch (Exception exception)
+            {
+                throw new Exception(exception.Message);
+            }
+        }
+
+        public async Task<string> DeleteReminder(int userId, int noteId)
+        {
+            try
+            {
+                 if (userId > 0 && noteId > 0)
+                {
+                    return await noteRL.DeleteReminder(userId, noteId);
+                }
+                else
+                {
+                    return null;
+                }
+            }
+            catch (Exception exception)
+            {
+                throw new Exception(exception.Message);
+            }
+        }
+
+        public async Task<NoteModel> ImageUpload(IFormFile formFile, int userId, int noteId)
+        {
+            try
+            {
+                if (userId > 0 && noteId > 0)
+                {
+                    return await noteRL.ImageUpload(formFile, userId, noteId);
+                }
+                else
+                {
+                    return null;
+                }
+            }
+            catch (Exception exception)
+            {
+                throw new Exception(exception.Message);
+            }
+        }
     }
 }

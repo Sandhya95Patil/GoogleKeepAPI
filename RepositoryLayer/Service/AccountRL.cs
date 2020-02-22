@@ -6,8 +6,10 @@
 //-----------------------------------------------------------------------
 namespace RepositoryLayer.Service
 {
+    using CommonLayer.ImageUpload;
     using CommonLayer.Model;
     using CommonLayer.Response;
+    using Microsoft.AspNetCore.Http;
     using Microsoft.Extensions.Configuration;
     using Microsoft.IdentityModel.Tokens;
     using RepositoryLayer.EncryptedPassword;
@@ -286,6 +288,58 @@ namespace RepositoryLayer.Service
                 else
                 {
                     return "Password Not Changed Please Try Again";
+                }
+            }
+            catch (Exception exception)
+            {
+                throw new Exception(exception.Message);
+            }
+        }
+
+        public async Task<RegisterResponseModel> Profile(IFormFile formFile, int userId)
+        {
+            try
+            {
+                UploadImage uploadImage = new UploadImage(this.configuration, formFile);
+                var url = uploadImage.Upload(formFile);
+                SqlConnection sqlConnection = new SqlConnection(configuration["ConnectionStrings:connectionDb"]);
+                SqlCommand sqlCommand = new SqlCommand("AddProfile", sqlConnection);
+                sqlCommand.CommandType = CommandType.StoredProcedure;
+                sqlCommand.Parameters.AddWithValue("@UserId", userId);
+                sqlCommand.Parameters.AddWithValue("@Profile", url);
+                sqlConnection.Open();
+                SqlDataReader sqlDataReader = await sqlCommand.ExecuteReaderAsync();
+                var userData = new RegisterModel();
+                while (sqlDataReader.Read())
+                {
+                    userData = new RegisterModel();
+                    userData.Id = Convert.ToInt32(sqlDataReader["Id"]);
+                    userData.FirstName = sqlDataReader["FirstName"].ToString();
+                    userData.LastName = sqlDataReader["LastName"].ToString();
+                    userData.Email = sqlDataReader["Email"].ToString();
+                    userData.Profile = sqlDataReader["Profile"].ToString();
+                    userData.MobileNumber = sqlDataReader["MobileNumber"].ToString();
+                    userData.Service = sqlDataReader["Service"].ToString();
+                    userData.UserType = sqlDataReader["UserType"].ToString();
+                }
+                if (userData != null)
+                {
+                    var showResponse = new RegisterResponseModel()
+                    {
+                        Id = userData.Id,
+                        FirstName = userData.FirstName,
+                        LastName = userData.LastName,
+                        Email = userData.Email,
+                        MobileNumber = userData.MobileNumber,
+                        Profile = userData.Profile,
+                        Service = userData.Service,
+                        UserType = userData.UserType
+                    };
+                    return showResponse;
+                }
+                else
+                {
+                    return null;
                 }
             }
             catch (Exception exception)

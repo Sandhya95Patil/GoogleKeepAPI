@@ -9,6 +9,7 @@ namespace BussinessLayer.Service
     using BussinessLayer.Interface;
     using CommonLayer.Model;
     using CommonLayer.Response;
+    using Microsoft.AspNetCore.Http;
     using RepositoryLayer.Interface;
     using System;
     using System.Threading.Tasks;
@@ -93,6 +94,25 @@ namespace BussinessLayer.Service
                 var response = this.accountRL.ResetPassword(resetModel);
                 return response;
             }
+            catch (Exception exception)
+            {
+                throw new Exception(exception.Message);
+            }
+        }
+
+        public async Task<RegisterResponseModel> Profile(IFormFile formFile, int userId)
+        {
+            try
+            {
+                if (userId > 0)
+                {
+                    return await accountRL.Profile(formFile, userId);
+                }
+                else
+                {
+                    return null;
+                }
+            }  
             catch (Exception exception)
             {
                 throw new Exception(exception.Message);

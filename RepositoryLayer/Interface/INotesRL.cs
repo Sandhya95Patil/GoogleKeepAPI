@@ -1,10 +1,16 @@
-﻿
-
+﻿//-----------------------------------------------------------------------
+// <copyright file="INotesRL.cs" company="BridgeLabz">
+//     Company copyright tag.
+// </copyright>
+// <creater name="Sandhya Patil"/>
+//-----------------------------------------------------------------------
 namespace RepositoryLayer.Interface
 {
     using CommonLayer.Model;
     using CommonLayer.Response;
     using CommonLayer.ShowModel;
+    using Microsoft.AspNetCore.Http;
+    using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
 
@@ -44,5 +50,13 @@ namespace RepositoryLayer.Interface
         /// <param name="noteId">noteId parameter</param>
         /// <returns>returns the deleted note</returns>
         Task<string> DeleteNote(int userId, int noteId);
+        Task<NoteModel> ArchiveNote(int userId, int noteId);
+        Task<NoteModel> TrashNote(int userId, int noteId);
+        Task<NoteModel> PinNote(int userId, int noteId);
+        Task<NoteModel> ChangeColor(int userId, int noteId, ColorModel colorModel);
+        Task<NoteModel> AddReminder(int userId, int noteId, DateTime dateTime);
+        Task<string> DeleteReminder(int userId, int noteId);
+        Task<NoteModel> ImageUpload(IFormFile formFile, int userId, int noteId);
+
     }
 }

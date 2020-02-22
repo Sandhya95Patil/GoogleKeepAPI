@@ -1,16 +1,16 @@
 ﻿//-----------------------------------------------------------------------
-// <copyright file="AccountRL.cs" company="BridgeLabz">
+// <copyright file="NotesRL.cs" company="BridgeLabz">
 //     Company copyright tag.
 // </copyright>
 // <creater name="Sandhya Patil"/>
 //-----------------------------------------------------------------------
-
-
 namespace RepositoryLayer.Service
 {
+    using CommonLayer.ImageUpload;
     using CommonLayer.Model;
     using CommonLayer.Response;
     using CommonLayer.ShowModel;
+    using Microsoft.AspNetCore.Http;
     using Microsoft.Extensions.Configuration;
     using RepositoryLayer.Interface;
     using System;
@@ -224,6 +224,378 @@ namespace RepositoryLayer.Service
             }
         }
 
-       
+        public async Task<NoteModel> ArchiveNote(int userId, int noteId)
+        {
+            try
+            {
+                SqlConnection sqlConnection = new SqlConnection(configuration["ConnectionStrings:connectionDb"]);
+                SqlCommand sqlCommand = new SqlCommand("ArchiveNote", sqlConnection);
+                sqlCommand.CommandType = CommandType.StoredProcedure;
+                sqlCommand.Parameters.AddWithValue("@NoteId", noteId);
+                sqlCommand.Parameters.AddWithValue("@UserId", userId);
+                sqlConnection.Open();
+                SqlDataReader sqlDataReader = await sqlCommand.ExecuteReaderAsync();
+                var noteData = new NoteModel();
+                while (sqlDataReader.Read())
+                {
+                    noteData = new NoteModel();
+                    noteData.Id = Convert.ToInt32(sqlDataReader["Id"]);
+                    noteData.Title = sqlDataReader["Title"].ToString();
+                    noteData.Description = sqlDataReader["Description"].ToString();
+                    noteData.Color = sqlDataReader["Color"].ToString();
+                    noteData.Image = sqlDataReader["Image"].ToString();
+                    noteData.CreatedDate = Convert.ToDateTime(sqlDataReader["CreatedDate"]);
+                    noteData.ModifiedDate = Convert.ToDateTime(sqlDataReader["ModifiedDate"]);
+                    noteData.IsPin = Convert.ToBoolean(sqlDataReader["IsPin"]);
+                    noteData.IsArchive = Convert.ToBoolean(sqlDataReader["IsArchive"]);
+                    noteData.IsTrash = Convert.ToBoolean(sqlDataReader["IsTrash"]);
+                    noteData.UserId = Convert.ToInt32(sqlDataReader["UserId"]);
+                }
+                if (noteData != null)
+                {
+                    var showresponse = new NoteModel()
+                    {
+                        Id = noteData.Id,
+                        Title = noteData.Title,
+                        Description = noteData.Description,
+                        Reminder = noteData.Reminder,
+                        Color = noteData.Color,
+                        Image = noteData.Image,
+                        CreatedDate=noteData.CreatedDate,
+                        ModifiedDate=noteData.ModifiedDate,
+                        IsPin = noteData.IsPin,
+                        IsArchive = noteData.IsArchive,
+                        IsTrash = noteData.IsTrash,
+                        UserId = userId
+                    };
+                    return showresponse;
+                }
+                else
+                {
+                    return null;
+                }
+
+            }
+            catch (Exception exception)
+            {
+                throw new Exception(exception.Message);
+            }
+        }
+
+        public async Task<NoteModel> TrashNote(int userId, int noteId)
+        {
+            try
+            {
+                SqlConnection sqlConnection = new SqlConnection(configuration["ConnectionStrings:connectionDb"]);
+                SqlCommand sqlCommand = new SqlCommand("TrashNote", sqlConnection);
+                sqlCommand.CommandType = CommandType.StoredProcedure;
+                sqlCommand.Parameters.AddWithValue("@NoteId", noteId);
+                sqlCommand.Parameters.AddWithValue("@UserId", userId);
+                sqlConnection.Open();
+                SqlDataReader sqlDataReader = await sqlCommand.ExecuteReaderAsync();
+                var noteData = new NoteModel();
+                while (sqlDataReader.Read())
+                {
+                    noteData = new NoteModel();
+                    noteData.Id = Convert.ToInt32(sqlDataReader["Id"]);
+                    noteData.Title = sqlDataReader["Title"].ToString();
+                    noteData.Description = sqlDataReader["Description"].ToString();
+                    noteData.Color = sqlDataReader["Color"].ToString();
+                    noteData.Image = sqlDataReader["Image"].ToString();
+                    noteData.CreatedDate = Convert.ToDateTime(sqlDataReader["CreatedDate"]);
+                    noteData.ModifiedDate = Convert.ToDateTime(sqlDataReader["ModifiedDate"]);
+                    noteData.IsPin = Convert.ToBoolean(sqlDataReader["IsPin"]);
+                    noteData.IsArchive = Convert.ToBoolean(sqlDataReader["IsArchive"]);
+                    noteData.IsPin = Convert.ToBoolean(sqlDataReader["IsTrash"]);
+                    noteData.UserId = Convert.ToInt32(sqlDataReader["UserId"]);
+                }
+                if (noteData != null)
+                {
+                    var showResponse = new NoteModel()
+                    {
+                        Id = noteData.Id,
+                        Title = noteData.Title,
+                        Description = noteData.Description,
+                        Reminder = noteData.Reminder,
+                        Color = noteData.Color,
+                        Image = noteData.Image,
+                        CreatedDate= noteData.CreatedDate,
+                        ModifiedDate=noteData.ModifiedDate,
+                        IsPin = noteData.IsPin,
+                        IsArchive = noteData.IsArchive,
+                        IsTrash = noteData.IsTrash,
+                        UserId = userId
+                    };
+                    return showResponse;
+                }
+                else
+                {
+                    return null;
+                }
+            }
+            catch (Exception exception)
+            {
+                throw new Exception(exception.Message);
+            }
+        }
+
+        public async Task<NoteModel> PinNote(int userId, int noteId)
+        {
+            try
+            {
+                SqlConnection sqlConnection = new SqlConnection(configuration["ConnectionStrings:connectionDb"]);
+                SqlCommand sqlCommand = new SqlCommand("PinNote", sqlConnection);
+                sqlCommand.CommandType = CommandType.StoredProcedure;
+                sqlCommand.Parameters.AddWithValue("@NoteId", noteId);
+                sqlCommand.Parameters.AddWithValue("@UserId", userId);
+                sqlConnection.Open();
+                SqlDataReader sqlDataReader = await sqlCommand.ExecuteReaderAsync();
+                var noteData = new NoteModel();
+                while (sqlDataReader.Read())
+                {
+                    noteData = new NoteModel();
+                    noteData.Id = Convert.ToInt32(sqlDataReader["Id"]);
+                    noteData.Title = sqlDataReader["Title"].ToString();
+                    noteData.Description = sqlDataReader["Description"].ToString();
+                    noteData.Color = sqlDataReader["Color"].ToString();
+                    noteData.Image = sqlDataReader["Image"].ToString();
+                    noteData.CreatedDate = Convert.ToDateTime(sqlDataReader["CreatedDate"]);
+                    noteData.ModifiedDate = Convert.ToDateTime(sqlDataReader["ModifiedDate"]);
+                    noteData.IsPin = Convert.ToBoolean(sqlDataReader["IsPin"]);
+                    noteData.IsArchive = Convert.ToBoolean(sqlDataReader["IsArchive"]);
+                    noteData.IsTrash = Convert.ToBoolean(sqlDataReader["IsTrash"]);
+                    noteData.UserId = Convert.ToInt32(sqlDataReader["UserId"]);
+                }
+                if (noteData != null)
+                {
+                    var showResponse = new NoteModel()
+                    {
+                        Id = noteData.Id,
+                        Title = noteData.Title,
+                        Description = noteData.Description,
+                        Reminder = noteData.Reminder,
+                        Color = noteData.Color,
+                        Image = noteData.Image,
+                        CreatedDate = noteData.CreatedDate,
+                        ModifiedDate = noteData.ModifiedDate,
+                        IsPin = noteData.IsPin,
+                        IsArchive = noteData.IsArchive,
+                        IsTrash = noteData.IsTrash,
+                        UserId = userId
+                    };
+                    return showResponse;
+                }
+                else
+                {
+                    return null;
+                }
+            }
+            catch (Exception exception)
+            {
+                throw new Exception(exception.Message);
+            }
+        }
+
+        public async Task<NoteModel> ChangeColor(int userId, int noteId, ColorModel colorModel)
+        {
+            try
+            {
+                SqlConnection sqlConnection = new SqlConnection(configuration["ConnectionStrings:connectionDb"]);
+                SqlCommand sqlCommand = new SqlCommand("ColorNote", sqlConnection);
+                sqlCommand.CommandType = CommandType.StoredProcedure;
+                sqlCommand.Parameters.AddWithValue("@UserId", userId);
+                sqlCommand.Parameters.AddWithValue("@NoteId", noteId);
+                sqlCommand.Parameters.AddWithValue("@Color", colorModel.Color);
+                sqlConnection.Open();
+                SqlDataReader sqlDataReader = await sqlCommand.ExecuteReaderAsync();
+                var noteData = new NoteModel();
+                while (sqlDataReader.Read())
+                {
+                    noteData = new NoteModel();
+                    noteData.Id = Convert.ToInt32(sqlDataReader["Id"]);
+                    noteData.Title = sqlDataReader["Title"].ToString();
+                    noteData.Description = sqlDataReader["Description"].ToString();
+                    noteData.Color = sqlDataReader["Color"].ToString();
+                    noteData.Image = sqlDataReader["Image"].ToString();
+                    noteData.CreatedDate = Convert.ToDateTime(sqlDataReader["CreatedDate"]);
+                    noteData.ModifiedDate = Convert.ToDateTime(sqlDataReader["ModifiedDate"]);
+                    noteData.IsPin = Convert.ToBoolean(sqlDataReader["IsPin"]);
+                    noteData.IsArchive = Convert.ToBoolean(sqlDataReader["IsArchive"]);
+                    noteData.IsTrash = Convert.ToBoolean(sqlDataReader["IsTrash"]);
+                    noteData.UserId = Convert.ToInt32(sqlDataReader["Id"]);
+                }
+                if (noteData != null)
+                {
+                    var showResponse = new NoteModel()
+                    {
+                        Id = noteData.Id,
+                        Title = noteData.Title,
+                        Description = noteData.Description,
+                        Reminder = noteData.Reminder,
+                        Image = noteData.Image,
+                        Color = noteData.Color,
+                        CreatedDate = noteData.CreatedDate,
+                        ModifiedDate = noteData.ModifiedDate,
+                        IsPin = noteData.IsPin,
+                        IsArchive = noteData.IsArchive,
+                        IsTrash = noteData.IsTrash,
+                        UserId = userId
+                    };
+                    return showResponse;
+                }
+                else
+                {
+                    return null;
+                }
+            }
+            catch (Exception exception)
+            {
+                throw new Exception(exception.Message);
+            }
+        }
+
+        public async Task<NoteModel> AddReminder(int userId, int noteId, DateTime dateTime)
+        {
+            try
+            {
+                SqlConnection sqlConnection = new SqlConnection(configuration["ConnectionStrings:connectionDb"]);
+                SqlCommand sqlCommand = new SqlCommand("AddReminder", sqlConnection);
+                sqlCommand.CommandType = CommandType.StoredProcedure;
+                sqlCommand.Parameters.AddWithValue("@UserId", userId);
+                sqlCommand.Parameters.AddWithValue("@NoteId", noteId);
+                sqlCommand.Parameters.AddWithValue("@Reminder", dateTime);
+                sqlConnection.Open();
+                SqlDataReader sqlDataReader = await sqlCommand.ExecuteReaderAsync();
+                var noteData = new NoteModel();
+                while (sqlDataReader.Read())
+                {
+                    noteData = new NoteModel();
+                    noteData.Id = Convert.ToInt32(sqlDataReader["Id"]);
+                    noteData.Title = sqlDataReader["Title"].ToString();
+                    noteData.Description = sqlDataReader["Description"].ToString();
+                    noteData.Reminder = Convert.ToDateTime(sqlDataReader["Reminder"]);
+                    noteData.Image = sqlDataReader["Image"].ToString();
+                    noteData.Color = sqlDataReader["Color"].ToString();
+                    noteData.CreatedDate=Convert.ToDateTime(sqlDataReader["CreatedDate"]);
+                    noteData.ModifiedDate = Convert.ToDateTime(sqlDataReader["ModifiedDate"]);
+                    noteData.IsPin = Convert.ToBoolean(sqlDataReader["IsPin"]);
+                    noteData.IsArchive = Convert.ToBoolean(sqlDataReader["IsArchive"]);
+                    noteData.IsTrash = Convert.ToBoolean(sqlDataReader["IsTrash"]);
+                }
+                if (noteData != null)
+                {
+                    var showResponse = new NoteModel()
+                    {
+                        Id = noteData.Id,
+                        Title = noteData.Title,
+                        Description = noteData.Description,
+                        Reminder = noteData.Reminder,
+                        Image = noteData.Image,
+                        Color = noteData.Color,
+                        CreatedDate = noteData.CreatedDate,
+                        ModifiedDate = noteData.ModifiedDate,
+                        IsPin = noteData.IsPin,
+                        IsArchive = noteData.IsArchive,
+                        IsTrash = noteData.IsTrash,
+                        UserId = userId
+                    };
+                    return showResponse;
+                }
+                else
+                {
+                    return null;
+                }
+            }
+            catch (Exception exception)
+            {
+                throw new Exception(exception.Message);
+            }
+        }
+
+        public async Task<string> DeleteReminder(int userId, int noteId)
+        {
+            try
+            {
+                SqlConnection sqlConnection = new SqlConnection(configuration["ConnectionStrings:connectionDb"]);
+                SqlCommand sqlCommand = new SqlCommand("DeleteReminder", sqlConnection);
+                sqlCommand.CommandType = CommandType.StoredProcedure;
+                sqlCommand.Parameters.AddWithValue("@UserId", userId);
+                sqlCommand.Parameters.AddWithValue("@NoteId", noteId);
+                sqlConnection.Open();
+                var response = await sqlCommand.ExecuteNonQueryAsync();
+                if (response > 0)
+                {
+                    return "Reminder Delete Successfully";
+                }
+                else
+                {
+                    return null;
+                }
+            }
+            catch (Exception exception)
+            {
+                throw new Exception(exception.Message);
+            }
+        }
+
+        public async Task<NoteModel> ImageUpload(IFormFile formFile,int userId, int noteId)
+        {
+            try
+            {
+                UploadImage uploadImage = new UploadImage(this.configuration, formFile);
+                var url = uploadImage.Upload(formFile);
+                SqlConnection sqlConnection = new SqlConnection(configuration["ConnectionStrings:connectionDb"]);
+                SqlCommand sqlCommand = new SqlCommand("ImageOnNote", sqlConnection);
+                sqlCommand.CommandType = CommandType.StoredProcedure;
+                sqlCommand.Parameters.AddWithValue("@UserId", userId);
+                sqlCommand.Parameters.AddWithValue("@NoteId", noteId);
+                sqlCommand.Parameters.AddWithValue("@Image", url);
+                sqlConnection.Open();
+                SqlDataReader sqlDataReader = await sqlCommand.ExecuteReaderAsync();
+                var noteData = new NoteModel();
+                while (sqlDataReader.Read())
+                {
+                    noteData = new NoteModel();
+                    noteData.Id = Convert.ToInt32(sqlDataReader["Id"]);
+                    noteData.Title = sqlDataReader["Title"].ToString();
+                    noteData.Description = sqlDataReader["Description"].ToString();
+                    noteData.Color = sqlDataReader["Color"].ToString();
+                    noteData.Image = sqlDataReader["Image"].ToString();
+                    noteData.CreatedDate = Convert.ToDateTime(sqlDataReader["CreatedDate"]);
+                    noteData.ModifiedDate = Convert.ToDateTime(sqlDataReader["ModifiedDate"]);
+                    noteData.IsArchive = Convert.ToBoolean(sqlDataReader["IsArchive"]);
+                    noteData.IsPin = Convert.ToBoolean(sqlDataReader["IsPin"]);
+                    noteData.IsTrash = Convert.ToBoolean(sqlDataReader["IsTrash"]);
+                }
+                sqlConnection.Close();
+                if (noteData != null)
+                {
+                    var showResponse = new NoteModel()
+                    {
+                        Id = noteData.Id,
+                        Title = noteData.Title,
+                        Description = noteData.Description,
+                        Color=noteData.Color,
+                        Image=noteData.Image,
+                        CreatedDate=noteData.CreatedDate,
+                        ModifiedDate=noteData.ModifiedDate,
+                        IsPin=noteData.IsPin,
+                        IsArchive=noteData.IsArchive,
+                        IsTrash=noteData.IsTrash,
+                        UserId = userId
+                    };
+                    return showResponse;
+                }
+                else
+                {
+                    return null;
+                }
+
+            }
+            catch (Exception exception)
+            {
+                throw new Exception(exception.Message);
+            }
+        }
     }
 }

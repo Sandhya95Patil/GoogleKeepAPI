@@ -7,9 +7,11 @@
 namespace GoogleKeepAPI.Controllers
 {
     using System;
+    using System.Linq;
     using System.Threading.Tasks;
     using BussinessLayer.Interface;
     using CommonLayer.Model;
+    using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Mvc;
 
     /// <summary>
@@ -139,6 +141,29 @@ namespace GoogleKeepAPI.Controllers
             {
                 return this.BadRequest(new { message = exception.Message });
             }  
+        }
+
+        [HttpPost]
+        [Route("Upload")]
+        public async Task<IActionResult> UploadImage(IFormFile formFile)
+        {
+            try
+            {
+                var claim = Convert.ToInt32(HttpContext.User.Claims.FirstOrDefault(c => c.Type == "Id").Value);
+                var data = await this.accountBL.Profile(formFile, claim);
+                if (data != null)
+                {
+                    return this.Ok(new { status = "true", message = "Profile Set Successfully", data});
+                }
+                else
+                {
+                    return this.BadRequest(new { status = "False", message = "Failed To Set Profile" });
+                }
+            }
+            catch (Exception exception)
+            {
+                return this.BadRequest(new { message = exception.Message });
+            }
         }
     }
 }

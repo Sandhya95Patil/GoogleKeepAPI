@@ -8,6 +8,7 @@ namespace RepositoryLayer.Interface
 {
     using CommonLayer.Model;
     using CommonLayer.Response;
+    using Microsoft.AspNetCore.Http;
     using System.Threading.Tasks;
 
     /// <summary>
@@ -42,5 +43,7 @@ namespace RepositoryLayer.Interface
         /// <param name="resetModel">resetModel parameter</param>
         /// <returns>returns the reset password</returns>
         Task<string> ResetPassword(ResetModel resetModel);
+        Task<RegisterResponseModel> Profile(IFormFile formFile, int userId);
+
     }
 }
