@@ -239,5 +239,24 @@ namespace BussinessLayer.Service
                 throw new Exception(exception.Message);
             }
         }
+
+        public async Task<IList<NoteModel>> GetAllTrashNotes(int userId)
+        {
+            try
+            {
+                if (userId > 0)
+                {
+                    return await noteRL.GetAllTrashNotes(userId);
+                }
+                else
+                {
+                    return null;
+                }
+            }
+            catch (Exception exception)
+            {
+                throw new Exception(exception.Message);
+            }
+        }
     }
 }

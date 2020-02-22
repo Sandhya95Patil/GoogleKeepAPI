@@ -57,6 +57,7 @@ namespace RepositoryLayer.Interface
         Task<NoteModel> AddReminder(int userId, int noteId, DateTime dateTime);
         Task<string> DeleteReminder(int userId, int noteId);
         Task<NoteModel> ImageUpload(IFormFile formFile, int userId, int noteId);
+        Task<IList<NoteModel>> GetAllTrashNotes(int userId);
 
     }
 }

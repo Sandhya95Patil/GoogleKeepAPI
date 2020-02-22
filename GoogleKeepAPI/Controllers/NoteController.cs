@@ -309,5 +309,28 @@ namespace GoogleKeepAPI.Controllers
                 return this.BadRequest(new { message = exception.Message });
             }
         }
+
+        [HttpGet]
+        [Route("Trash")]
+        public async Task<IActionResult> GetAllTrashNotes()
+        {
+            try
+            {
+                var claim = Convert.ToInt32(HttpContext.User.Claims.FirstOrDefault(c => c.Type == "Id").Value);
+                var data = await noteBL.GetAllTrashNotes(claim);
+                if (data != null)
+                {
+                    return this.Ok(new { status = "true", message = "All Trash Notes", data });
+                }
+                else
+                {
+                    return this.BadRequest(new { staus = "false", message = "Failed To Get Trash Notes" });
+                }
+            }
+            catch (Exception exception)
+            {
+                return this.BadRequest(new { message = exception.Message });
+            }
+        }
     }
 }

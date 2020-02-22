@@ -597,5 +597,47 @@ namespace RepositoryLayer.Service
                 throw new Exception(exception.Message);
             }
         }
+
+        public async Task<IList<NoteModel>> GetAllTrashNotes(int userId)
+        {
+            try
+            {
+                SqlConnection sqlConnection = new SqlConnection(configuration["ConnectionStrings:connectionDb"]);
+                SqlCommand sqlCommand = new SqlCommand("AllTrashNotes", sqlConnection);
+                sqlCommand.CommandType = CommandType.StoredProcedure;
+                sqlCommand.Parameters.AddWithValue("@UserId", userId);
+                sqlConnection.Open();
+                SqlDataReader sqlDataReader = await sqlCommand.ExecuteReaderAsync();
+                var noteData = new NoteModel();
+                IList<NoteModel> trashList = new List<NoteModel>();
+                while (sqlDataReader.Read())
+                {
+                    noteData = new NoteModel();
+                    noteData.Id = Convert.ToInt32(sqlDataReader["Id"]);
+                    noteData.Title = sqlDataReader["Title"].ToString();
+                    noteData.Description = sqlDataReader["Description"].ToString();
+                    noteData.Color = sqlDataReader["Color"].ToString();
+                    noteData.Image = sqlDataReader["Image"].ToString();
+                    noteData.CreatedDate = Convert.ToDateTime(sqlDataReader["CreatedDate"]);
+                    noteData.ModifiedDate = Convert.ToDateTime(sqlDataReader["ModifiedDate"]);
+                    noteData.IsArchive = Convert.ToBoolean(sqlDataReader["IsArchive"]);
+                    noteData.IsPin = Convert.ToBoolean(sqlDataReader["IsPin"]);
+                    noteData.IsTrash = Convert.ToBoolean(sqlDataReader["IsTrash"]);
+                    trashList.Add(noteData);
+                }
+                if (noteData != null)
+                {
+                    return trashList;
+                }
+                else
+                {
+                    return null;
+                }
+            }
+            catch (Exception exception)
+            {
+                throw new Exception(exception.Message);
+            }
+        }
     }
 }
