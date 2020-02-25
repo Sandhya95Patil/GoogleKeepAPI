@@ -9,6 +9,7 @@ namespace BussinessLayer.Service
     using BussinessLayer.Interface;
     using CommonLayer.Model;
     using CommonLayer.Response;
+    using CommonLayer.ShowModel;
     using Microsoft.AspNetCore.Http;
     using RepositoryLayer.Interface;
     using System;
@@ -38,7 +39,7 @@ namespace BussinessLayer.Service
         /// </summary>
         /// <param name="registerModel">registerModel parameter</param>
         /// <returns>returns the register user</returns>
-        public Task<RegisterResponseModel> UserSignUp(RegisterModel registerModel)
+        public Task<RegisterResponseModel> UserSignUp(ShowRegisterModel registerModel)
         {
             try
             {

@@ -8,6 +8,7 @@ namespace BussinessLayer.Interface
 {
     using CommonLayer.Model;
     using CommonLayer.Response;
+    using CommonLayer.ShowModel;
     using Microsoft.AspNetCore.Http;
     using System.Threading.Tasks;
 
@@ -21,7 +22,7 @@ namespace BussinessLayer.Interface
         /// </summary>
         /// <param name="registerModel">registerModel parameter</param>
         /// <returns>returns the register user</returns>
-        Task<RegisterResponseModel> UserSignUp(RegisterModel registerModel);
+        Task<RegisterResponseModel> UserSignUp(ShowRegisterModel registerModel);
 
         /// <summary>
         /// User Login method

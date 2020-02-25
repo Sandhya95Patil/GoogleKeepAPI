@@ -9,6 +9,7 @@ namespace RepositoryLayer.Service
     using CommonLayer.ImageUpload;
     using CommonLayer.Model;
     using CommonLayer.Response;
+    using CommonLayer.ShowModel;
     using Microsoft.AspNetCore.Http;
     using Microsoft.Extensions.Configuration;
     using Microsoft.IdentityModel.Tokens;
@@ -50,14 +51,14 @@ namespace RepositoryLayer.Service
         /// </summary>
         /// <param name="registrationModel">registrationModel parameter</param>
         /// <returns>returns the register user</returns>
-        public async Task<RegisterResponseModel> UserSignUp(RegisterModel registrationModel)
+        public async Task<RegisterResponseModel> UserSignUp(ShowRegisterModel registrationModel)
         {
             try
             {
                 var userType = "user";
                 var password = PasswordEncrypt.Encryptdata(registrationModel.Password);
-
-                SqlConnection sqlConnection = new SqlConnection(configuration["ConnectionStrings:connectionDb"]);
+                string connection="";
+                SqlConnection sqlConnection = GetConnection(connection);
                 SqlCommand sqlCommand = new SqlCommand("AddUser", sqlConnection);
                 sqlCommand.CommandType = CommandType.StoredProcedure;
                 sqlCommand.Parameters.AddWithValue("@FirstName", registrationModel.FirstName);
@@ -68,14 +69,12 @@ namespace RepositoryLayer.Service
                 sqlCommand.Parameters.AddWithValue("@Profile", registrationModel.Profile);
                 sqlCommand.Parameters.AddWithValue("@Service", registrationModel.Service);
                 sqlCommand.Parameters.AddWithValue("@UserType", userType);
-                sqlConnection.Open();
 
                 var response = await sqlCommand.ExecuteNonQueryAsync();
                 if (response > 0)
                 {
                     var showResponse = new RegisterResponseModel()
                     {
-                       // Id = registrationModel.Id,
                         FirstName = registrationModel.FirstName,
                         LastName = registrationModel.LastName,
                         Email = registrationModel.Email,
@@ -108,7 +107,9 @@ namespace RepositoryLayer.Service
             {
                 var password = PasswordEncrypt.Encryptdata(loginModel.Password);
 
-                SqlConnection sqlConnection = new SqlConnection(configuration["ConnectionStrings:connectionDb"]);
+                string connection = "";
+                SqlConnection sqlConnection = GetConnection(connection);
+                
                 SqlCommand sqlCommand = new SqlCommand("LoginUser", sqlConnection);
                 sqlCommand.CommandType = CommandType.StoredProcedure;
                 sqlCommand.Parameters.AddWithValue("@Email", loginModel.Email);
@@ -209,7 +210,8 @@ namespace RepositoryLayer.Service
         {
             try
             {
-                SqlConnection sqlConnection = new SqlConnection(configuration["ConnectionStrings:connectionDb"]);
+                string connection = "";
+                SqlConnection sqlConnection = GetConnection(connection);
                 SqlCommand sqlCommand = new SqlCommand("ForgetPassword", sqlConnection);
                 sqlCommand.CommandType = CommandType.StoredProcedure;
                 sqlCommand.Parameters.AddWithValue("@Email", forgetModel.Email);
@@ -255,7 +257,8 @@ namespace RepositoryLayer.Service
             {
                 string pass = PasswordEncrypt.Encryptdata(resetModel.NewPassword);
 
-                SqlConnection sqlConnection = new SqlConnection(configuration["ConnectionStrings:connectionDb"]);
+                string connection = "";
+                SqlConnection sqlConnection = GetConnection(connection);
                 SqlCommand sqlCommand = new SqlCommand("ResetPassword", sqlConnection);
                 sqlCommand.CommandType = CommandType.StoredProcedure;
 
@@ -296,6 +299,12 @@ namespace RepositoryLayer.Service
             }
         }
 
+        /// <summary>
+        /// Upload profile method
+        /// </summary>
+        /// <param name="formFile">formFile parameter</param>
+        /// <param name="userId">userId parameter</param>
+        /// <returns>return the uploaded profile</returns>
         public async Task<RegisterResponseModel> Profile(IFormFile formFile, int userId)
         {
             try
@@ -346,6 +355,18 @@ namespace RepositoryLayer.Service
             {
                 throw new Exception(exception.Message);
             }
+        }
+
+        /// <summary>
+        /// This method is for connection with database using connection string
+        /// </summary>
+        /// <param name="connectionName">connectionName parameter</param>
+        /// <returns>return the connection</returns>
+        public SqlConnection GetConnection(string connectionName)
+        {
+            SqlConnection connection = new SqlConnection(configuration["ConnectionStrings:connectionDb"]);
+            connection.Open();
+            return connection;
         }
     }
 }

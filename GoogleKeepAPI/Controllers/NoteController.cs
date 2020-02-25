@@ -156,16 +156,25 @@ namespace GoogleKeepAPI.Controllers
         {
             try
             {
+              //var claim = 3003;
                 var claim = Convert.ToInt32(HttpContext.User.Claims.FirstOrDefault(c => c.Type=="Id").Value);
                 var data = await noteBL.ArchiveNote(claim, noteId);
-                if (data.IsArchive == true)
+                if (data != null)
                 {
-                    return this.Ok(new { status = "true", message = "Note Is Archive", data });
+                    if (data.IsArchive == true)
+                    {
+                        return this.Ok(new { status = "true", message = "Note Is Archive", data });
+                    }
+                    else
+                    {
+                        return this.Ok(new { status = "true", message = "Note Is UnArchive", data });
+                    }
                 }
                 else
                 {
-                    return this.BadRequest(new { status = "false", message = "Note Is UnArchive", data });
+                    return this.BadRequest(new { status = "false", message = "Note Is Not Available" });
                 }
+              
             }
             catch (Exception exception)
             {
@@ -180,14 +189,22 @@ namespace GoogleKeepAPI.Controllers
             {
                 var claim = Convert.ToInt32(HttpContext.User.Claims.FirstOrDefault(c => c.Type == "Id").Value);
                 var data = await noteBL.TrashNote(claim, noteId);
-                if (data.IsTrash == true)
+                if (data != null)
                 {
-                    return this.Ok(new { status = "true", message = "Note Is Trash", data });
+                    if (data.IsTrash == true)
+                    {
+                        return this.Ok(new { status = "true", message = "Note Is Trash", data });
+                    }
+                    else
+                    {
+                        return this.Ok(new { staus = "true", message = "Note Is UnTrash", data });
+                    }
                 }
                 else
                 {
-                    return this.BadRequest(new { staus = "false", message = "Note Is UnTrash", data });
+                    return this.BadRequest(new { status = "false", message = "Note Is Not Available" });
                 }
+               
             }
             catch (Exception exception)
             {
@@ -203,13 +220,20 @@ namespace GoogleKeepAPI.Controllers
             {
                 var claim = Convert.ToInt32(HttpContext.User.Claims.FirstOrDefault(c => c.Type == "Id").Value);
                 var data = await noteBL.PinNote(claim, noteId);
-                if (data.IsPin == true)
+                if (data != null)
                 {
-                    return this.Ok(new { status = "true", message = "Note Is Pin", data });
+                    if (data.IsPin == true)
+                    {
+                        return this.Ok(new { status = "true", message = "Note Is Pin", data });
+                    }
+                    else
+                    {
+                        return this.Ok(new { staus = "true", message = "Note Is UnPin", data });
+                    }
                 }
                 else
                 {
-                    return this.BadRequest(new { staus = "false", message = "Note Is UnPin", data });
+                    return this.BadRequest(new { status = "false", message = "Note Is Not Available" });
                 }
             }
             catch (Exception exception)
@@ -325,6 +349,52 @@ namespace GoogleKeepAPI.Controllers
                 else
                 {
                     return this.BadRequest(new { staus = "false", message = "Failed To Get Trash Notes" });
+                }
+            }
+            catch (Exception exception)
+            {
+                return this.BadRequest(new { message = exception.Message });
+            }
+        }
+
+        [HttpGet]
+        [Route("Archive")]
+        public async Task<IActionResult> GetAllArchiveNotes()
+        {
+            try
+            {
+                var claim = Convert.ToInt32(HttpContext.User.Claims.FirstOrDefault(c => c.Type == "Id").Value);
+                var data = await noteBL.GetAllArchiveNotes(claim);
+                if (data != null)
+                {
+                    return this.Ok(new { status = "true", message = "All Archive Notes", data });
+                }
+                else
+                {
+                    return this.BadRequest(new { staus = "false", message = "Failed To Get Archive Notes" });
+                }
+            }
+            catch (Exception exception)
+            {
+                return this.BadRequest(new { message = exception.Message });
+            }
+        }
+
+        [HttpGet]
+        [Route("Pin")]
+        public async Task<IActionResult> GetAllPinNotes()
+        {
+            try
+            {
+                var claim = Convert.ToInt32(HttpContext.User.Claims.FirstOrDefault(c => c.Type == "Id").Value);
+                var data = await noteBL.GetAllPinNotes(claim);
+                if (data != null)
+                {
+                    return this.Ok(new { status = "true", message = "All Pin Notes", data });
+                }
+                else
+                {
+                    return this.BadRequest(new { staus = "false", message = "Failed To Get Pin Notes" });
                 }
             }
             catch (Exception exception)

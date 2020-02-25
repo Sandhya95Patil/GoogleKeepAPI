@@ -8,6 +8,7 @@ namespace RepositoryLayer.Interface
 {
     using CommonLayer.Model;
     using CommonLayer.Response;
+    using CommonLayer.ShowModel;
     using Microsoft.AspNetCore.Http;
     using System.Threading.Tasks;
 
@@ -21,7 +22,7 @@ namespace RepositoryLayer.Interface
         /// </summary>
         /// <param name="registrationModel">registrationModel parameter</param>
         /// <returns>returns the register user</returns>
-        Task<RegisterResponseModel> UserSignUp(RegisterModel registrationModel);
+        Task<RegisterResponseModel> UserSignUp(ShowRegisterModel registrationModel);
 
         /// <summary>
         /// User Login method

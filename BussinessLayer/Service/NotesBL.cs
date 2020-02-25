@@ -258,5 +258,43 @@ namespace BussinessLayer.Service
                 throw new Exception(exception.Message);
             }
         }
+
+        public async Task<IList<NoteModel>> GetAllArchiveNotes(int userId)
+        {
+            try
+            {
+                if (userId > 0)
+                {
+                    return await noteRL.GetAllArchiveNotes(userId);
+                }
+                else
+                {
+                    return null;
+                }
+            }
+            catch (Exception exception)
+            {
+                throw new Exception(exception.Message);
+            }
+        }
+
+        public async Task<IList<NoteModel>> GetAllPinNotes(int userId)
+        {
+            try
+            {
+                if (userId > 0)
+                {
+                    return await noteRL.GetAllPinNotes(userId);
+                }
+                else
+                {
+                    return null;
+                }
+            }
+            catch (Exception exception)
+            {
+                throw new Exception(exception.Message);
+            }
+        }
     }
 }

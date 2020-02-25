@@ -11,6 +11,7 @@ namespace GoogleKeepAPI.Controllers
     using System.Threading.Tasks;
     using BussinessLayer.Interface;
     using CommonLayer.Model;
+    using CommonLayer.ShowModel;
     using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Mvc;
 
@@ -42,7 +43,7 @@ namespace GoogleKeepAPI.Controllers
         /// <returns>returns the register user</returns>
         [HttpPost]
         [Route("SignUp")]
-        public async Task<IActionResult> UserSignUp(RegisterModel registerModel)
+        public async Task<IActionResult> UserSignUp(ShowRegisterModel registerModel)
         {
             try
             {

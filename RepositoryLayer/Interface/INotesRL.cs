@@ -50,6 +50,7 @@ namespace RepositoryLayer.Interface
         /// <param name="noteId">noteId parameter</param>
         /// <returns>returns the deleted note</returns>
         Task<string> DeleteNote(int userId, int noteId);
+
         Task<NoteModel> ArchiveNote(int userId, int noteId);
         Task<NoteModel> TrashNote(int userId, int noteId);
         Task<NoteModel> PinNote(int userId, int noteId);
@@ -58,6 +59,8 @@ namespace RepositoryLayer.Interface
         Task<string> DeleteReminder(int userId, int noteId);
         Task<NoteModel> ImageUpload(IFormFile formFile, int userId, int noteId);
         Task<IList<NoteModel>> GetAllTrashNotes(int userId);
-
+        Task<IList<NoteModel>> GetAllArchiveNotes(int userId);
+        Task<IList<NoteModel>> GetAllPinNotes(int userId);
+        
     }
 }

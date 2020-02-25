@@ -251,7 +251,7 @@ namespace RepositoryLayer.Service
                     noteData.IsTrash = Convert.ToBoolean(sqlDataReader["IsTrash"]);
                     noteData.UserId = Convert.ToInt32(sqlDataReader["UserId"]);
                 }
-                if (noteData != null)
+                if (noteData.Id == noteId)
                 {
                     var showresponse = new NoteModel()
                     {
@@ -306,10 +306,10 @@ namespace RepositoryLayer.Service
                     noteData.ModifiedDate = Convert.ToDateTime(sqlDataReader["ModifiedDate"]);
                     noteData.IsPin = Convert.ToBoolean(sqlDataReader["IsPin"]);
                     noteData.IsArchive = Convert.ToBoolean(sqlDataReader["IsArchive"]);
-                    noteData.IsPin = Convert.ToBoolean(sqlDataReader["IsTrash"]);
+                    noteData.IsTrash = Convert.ToBoolean(sqlDataReader["IsTrash"]);
                     noteData.UserId = Convert.ToInt32(sqlDataReader["UserId"]);
                 }
-                if (noteData != null)
+                if (noteData.Id == noteId)
                 {
                     var showResponse = new NoteModel()
                     {
@@ -366,7 +366,7 @@ namespace RepositoryLayer.Service
                     noteData.IsTrash = Convert.ToBoolean(sqlDataReader["IsTrash"]);
                     noteData.UserId = Convert.ToInt32(sqlDataReader["UserId"]);
                 }
-                if (noteData != null)
+                if (noteData.Id==noteId)
                 {
                     var showResponse = new NoteModel()
                     {
@@ -628,6 +628,92 @@ namespace RepositoryLayer.Service
                 if (noteData != null)
                 {
                     return trashList;
+                }
+                else
+                {
+                    return null;
+                }
+            }
+            catch (Exception exception)
+            {
+                throw new Exception(exception.Message);
+            }
+        }
+
+        public async Task<IList<NoteModel>> GetAllArchiveNotes(int userId)
+        {
+            try
+            {
+                SqlConnection sqlConnection = new SqlConnection(configuration["ConnectionStrings:connectionDb"]);
+                SqlCommand sqlCommand = new SqlCommand("AllArchiveNotes", sqlConnection);
+                sqlCommand.CommandType = CommandType.StoredProcedure;
+                sqlCommand.Parameters.AddWithValue("@UserId", userId);
+                sqlConnection.Open();
+                SqlDataReader sqlDataReader = await sqlCommand.ExecuteReaderAsync();
+                var noteData = new NoteModel();
+                IList<NoteModel> noteList = new List<NoteModel>();
+                while (sqlDataReader.Read())
+                {
+                    noteData = new NoteModel();
+                    noteData.Id = Convert.ToInt32(sqlDataReader["Id"]);
+                    noteData.Title = sqlDataReader["Title"].ToString();
+                    noteData.Description = sqlDataReader["Description"].ToString();
+                    noteData.Image = sqlDataReader["Image"].ToString();
+                    noteData.Color = sqlDataReader["Color"].ToString();
+                    noteData.CreatedDate = Convert.ToDateTime(sqlDataReader["CreatedDate"]);
+                    noteData.ModifiedDate = Convert.ToDateTime(sqlDataReader["ModifiedDate"]);
+                    noteData.IsArchive = Convert.ToBoolean(sqlDataReader["IsArchive"]);
+                    noteData.IsPin = Convert.ToBoolean(sqlDataReader["IsPin"]);
+                    noteData.IsTrash = Convert.ToBoolean(sqlDataReader["IsTrash"]);
+                    noteData.UserId = Convert.ToInt32(sqlDataReader["UserId"]);
+                    noteList.Add(noteData);
+                }
+                if (noteData != null)
+                {
+                    return noteList;
+                }
+                else
+                {
+                    return null;
+                }
+            }
+            catch (Exception exception)
+            {
+                throw new Exception(exception.Message);
+            }
+        }
+
+        public async Task<IList<NoteModel>> GetAllPinNotes(int userId)
+        {
+            try
+            {
+                SqlConnection sqlConnection = new SqlConnection(configuration["ConnectionStrings:connectionDb"]);
+                SqlCommand sqlCommand = new SqlCommand("AllPinNotes", sqlConnection);
+                sqlCommand.CommandType = CommandType.StoredProcedure;
+                sqlCommand.Parameters.AddWithValue("@UserId", userId);
+                sqlConnection.Open();
+                SqlDataReader sqlDataReader = await sqlCommand.ExecuteReaderAsync();
+                var noteData = new NoteModel();
+                IList<NoteModel> noteList = new List<NoteModel>();
+                while (sqlDataReader.Read())
+                {
+                    noteData = new NoteModel();
+                    noteData.Id = Convert.ToInt32(sqlDataReader["Id"]);
+                    noteData.Title = sqlDataReader["Title"].ToString();
+                    noteData.Description = sqlDataReader["Description"].ToString();
+                    noteData.Image = sqlDataReader["Image"].ToString();
+                    noteData.Color = sqlDataReader["Color"].ToString();
+                    noteData.CreatedDate = Convert.ToDateTime(sqlDataReader["CreatedDate"]);
+                    noteData.ModifiedDate = Convert.ToDateTime(sqlDataReader["ModifiedDate"]);
+                    noteData.IsArchive = Convert.ToBoolean(sqlDataReader["IsArchive"]);
+                    noteData.IsPin = Convert.ToBoolean(sqlDataReader["IsPin"]);
+                    noteData.IsTrash = Convert.ToBoolean(sqlDataReader["IsTrash"]);
+                    noteData.UserId = Convert.ToInt32(sqlDataReader["UserId"]);
+                    noteList.Add(noteData);
+                }
+                if (noteData != null)
+                {
+                    return noteList;
                 }
                 else
                 {

@@ -8,11 +8,14 @@ namespace GoogleKeepTestCases.TestCases
 {
     using BussinessLayer.Interface;
     using BussinessLayer.Service;
+    using CommonLayer.Model;
     using CommonLayer.ShowModel;
     using GoogleKeepAPI.Controllers;
+    using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Mvc;
     using Moq;
     using RepositoryLayer.Interface;
+    using System;
     using Xunit;
 
     /// <summary>
@@ -26,6 +29,11 @@ namespace GoogleKeepTestCases.TestCases
         NoteController noteController;
 
         /// <summary>
+        /// Inject Interface of form file class
+        /// </summary>
+      //  private readonly IFormFile formFile;
+
+        /// <summary>
         /// Inject the bussiness layer interface
         /// </summary>
         INotesBL notesBL;
@@ -35,6 +43,7 @@ namespace GoogleKeepTestCases.TestCases
         /// </summary>
         public NoteTestCases()
         {
+           // this.formFile = formFile;
             var repository = new Mock<INotesRL>();
             this.notesBL = new NotesBL(repository.Object);
             noteController = new NoteController(this.notesBL);
@@ -106,7 +115,7 @@ namespace GoogleKeepTestCases.TestCases
                 Title = "asd",
                 Description = "sdfg"
             };
-            var response = noteController.UpdateNote(model, 1);
+            var response = noteController.UpdateNote(model, 4002);
             Assert.IsNotType<OkObjectResult>(response);
         }
 
@@ -116,7 +125,7 @@ namespace GoogleKeepTestCases.TestCases
         [Fact]
         public void ValidId_DeleteNote()
         {
-            var response = noteController.DeleteNote(1);
+            var response = noteController.DeleteNote(4002);
             Assert.IsType<OkObjectResult>(response);
         }
 
@@ -126,7 +135,7 @@ namespace GoogleKeepTestCases.TestCases
         [Fact]
         public void InvalidId_DeleteNote()
         {
-            var response = noteController.DeleteNote(1);
+            var response = noteController.DeleteNote(4002);
             Assert.IsNotType<OkObjectResult>(response);
         }
 
@@ -147,6 +156,126 @@ namespace GoogleKeepTestCases.TestCases
         public void NoteList_ReturnsNotOk()
         {
             var response = noteController.GetAllNotes();
+            Assert.IsNotType<OkObjectResult>(response);
+        }
+
+        [Fact]
+        public void ValidNoteId_ArchiveNote()
+        {
+            var response = noteController.ArchiveNote(4002);
+            Assert.IsType<OkObjectResult>(response);
+        }
+
+        [Fact]
+        public void InValidNoteId_ArchiveNote()
+        {
+            var response = noteController.ArchiveNote(4002);
+            Assert.IsNotType<OkObjectResult>(response);
+        }
+
+        [Fact]
+        public void ValidNoteId_TrashNote()
+        {
+            var response = noteController.TrashNote(4002);
+            Assert.IsType<OkObjectResult>(response);
+        }
+
+        [Fact]
+        public void InValidNoteId_TrashNote()
+        {
+            var response = noteController.TrashNote(4002);
+            Assert.IsNotType<OkObjectResult>(response);
+        }
+
+        [Fact]
+        public void ValidNoteId_PinNote()
+        {
+            var response = noteController.PinNote(4002);
+            Assert.IsType<OkObjectResult>(response);
+        }
+
+        [Fact]
+        public void InValidNoteId_PinNote()
+        {
+            var response = noteController.PinNote(4002);
+            Assert.IsNotType<OkObjectResult>(response);
+        }
+/*
+        [Fact]
+        public void ValidNoteId_ImageUpload()
+        {
+            var response = noteController.ImageUpload(formFile,4002);
+            Assert.IsType<OkObjectResult>(response);
+        }
+
+        [Fact]
+        public void InvalidNoteId_ImageUpload()
+        {
+            var response = noteController.ImageUpload(formFile, 4002);
+            Assert.IsNotType<OkObjectResult>(response);
+        }*/
+
+        [Fact]
+        public void ValidUserId_GetAllPin()
+        {
+            var response = noteController.GetAllPinNotes();
+            Assert.IsType<OkObjectResult>(response);
+        }
+
+        [Fact]
+        public void InvalidUserId_GetAllPin()
+        {
+            var response = noteController.GetAllPinNotes();
+            Assert.IsNotType<OkObjectResult>(response);
+        }
+
+        [Fact]
+        public void ValidUserId_GetAllTrash()
+        {
+            var response = noteController.GetAllTrashNotes();
+            Assert.IsType<OkObjectResult>(response);
+        }
+
+        [Fact]
+        public void InValidUserId_GetAllTrash()
+        {
+            var response = noteController.GetAllTrashNotes();
+            Assert.IsNotType<OkObjectResult>(response);
+        }
+
+        [Fact]
+        public void ValidUserId_GetAllArchive()
+        {
+            var response = noteController.GetAllArchiveNotes();
+            Assert.IsType<OkObjectResult>(response);
+        }
+
+        [Fact]
+        public void InValidUserId_GetAllArchive()
+        {
+            var response = noteController.GetAllArchiveNotes();
+            Assert.IsNotType<OkObjectResult>(response);
+        }
+
+        [Fact]
+        public void ValidNoteId_ChangeColor()
+        {
+            var model = new ColorModel()
+            {
+                Color = "#000000"
+            };
+            var response = noteController.ChangeColor(4002,model);
+            Assert.IsType<OkObjectResult>(response);
+        }
+
+        [Fact]
+        public void InValidNoteId_ChangeColor()
+        {
+            var model=new ColorModel()
+            {
+                Color=""
+            };
+            var response = noteController.ChangeColor(4002, model);
             Assert.IsNotType<OkObjectResult>(response);
         }
     }
