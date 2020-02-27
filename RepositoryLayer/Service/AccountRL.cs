@@ -19,6 +19,7 @@ namespace RepositoryLayer.Service
     using RepositoryLayer.Token;
     using ServiceStack.Redis;
     using System;
+    using System.Collections.Generic;
     using System.Data;
     using System.Data.SqlClient;
     using System.IdentityModel.Tokens.Jwt;
@@ -46,6 +47,56 @@ namespace RepositoryLayer.Service
             this.configuration = configuration;
         }
 
+           /// <summary>
+        /// This method is for connection with database using connection string
+        /// </summary>
+        /// <param name="connectionName">connectionName parameter</param>
+        /// <returns>return the connection</returns>
+        public SqlConnection GetConnection(string connectionName)
+        {
+            SqlConnection connection = new SqlConnection(configuration["ConnectionStrings:connectionDb"]);
+            connection.Open();
+            return connection;
+        }
+
+        public SqlCommand GetCommand(string command)
+        {
+            string connection = "";
+            SqlConnection sqlConnection = GetConnection(connection);
+            SqlCommand sqlCommand = new SqlCommand(command, sqlConnection);
+            sqlCommand.CommandType = CommandType.StoredProcedure;
+            return sqlCommand;
+        }
+
+
+        class StoredProcedureParameterData {
+            public StoredProcedureParameterData(string name, dynamic value) 
+            { 
+                this.name = name; 
+                this.value = value; 
+            } 
+            
+            public string name { get; set; } 
+           public dynamic value { get; set; }
+        }
+        private async Task<DataTable> StoredProcedureExecuteReader(string spName, IList<StoredProcedureParameterData> spParams)
+        {
+            try
+            { 
+                SqlCommand command = GetCommand(spName); 
+                for (int i = 0; i < spParams.Count; i++)
+                {
+                    command.Parameters.AddWithValue(spParams[i].name, spParams[i].value); 
+                } 
+                DataTable table = new DataTable(); 
+                SqlDataReader dataReader = await command.ExecuteReaderAsync(); 
+                table.Load(dataReader); 
+                return table;
+            }
+            catch (Exception e) 
+            { throw e; } 
+        }
+
         /// <summary>
         /// User Sign Up method
         /// </summary>
@@ -57,33 +108,33 @@ namespace RepositoryLayer.Service
             {
                 var userType = "user";
                 var password = PasswordEncrypt.Encryptdata(registrationModel.Password);
-                string connection="";
-                SqlConnection sqlConnection = GetConnection(connection);
-                SqlCommand sqlCommand = new SqlCommand("AddUser", sqlConnection);
-                sqlCommand.CommandType = CommandType.StoredProcedure;
-                sqlCommand.Parameters.AddWithValue("@FirstName", registrationModel.FirstName);
-                sqlCommand.Parameters.AddWithValue("@LastName", registrationModel.LastName);
-                sqlCommand.Parameters.AddWithValue("@Email", registrationModel.Email);
-                sqlCommand.Parameters.AddWithValue("@Password", password);
-                sqlCommand.Parameters.AddWithValue("@MobileNumber", registrationModel.MobileNumber);
-                sqlCommand.Parameters.AddWithValue("@Profile", registrationModel.Profile);
-                sqlCommand.Parameters.AddWithValue("@Service", registrationModel.Service);
-                sqlCommand.Parameters.AddWithValue("@UserType", userType);
+                List<StoredProcedureParameterData> paramList = new List<StoredProcedureParameterData> ();
+                paramList.Add(new StoredProcedureParameterData("@FirstName", registrationModel.FirstName));
+                paramList.Add(new StoredProcedureParameterData("@LastName", registrationModel.LastName));
+                paramList.Add(new StoredProcedureParameterData("@Email", registrationModel.Email));
+                paramList.Add(new StoredProcedureParameterData("@Password", registrationModel.Password));
+                paramList.Add(new StoredProcedureParameterData("@MobileNumber", registrationModel.MobileNumber));
+                paramList.Add(new StoredProcedureParameterData("@Profile", registrationModel.Profile));
+                paramList.Add(new StoredProcedureParameterData("@Service", registrationModel.Service));
+                paramList.Add(new StoredProcedureParameterData("@UserType", userType));
+                DataTable table = await StoredProcedureExecuteReader("AddUser", paramList);
+                var userData = new RegisterResponseModel();
 
-                var response = await sqlCommand.ExecuteNonQueryAsync();
-                if (response > 0)
+                foreach (DataRow dataRow in table.Rows)
                 {
-                    var showResponse = new RegisterResponseModel()
-                    {
-                        FirstName = registrationModel.FirstName,
-                        LastName = registrationModel.LastName,
-                        Email = registrationModel.Email,
-                        MobileNumber = registrationModel.MobileNumber,
-                        Profile = registrationModel.Profile,
-                        Service=registrationModel.Service,
-                        UserType = userType
-                    };
-                    return showResponse;
+                    userData = new RegisterResponseModel();
+                    userData.Id = (int)dataRow["Id"];
+                    userData.FirstName = dataRow["FirstName"].ToString();
+                    userData.LastName = dataRow["LastName"].ToString();
+                    userData.Email = dataRow["Email"].ToString();
+                    userData.MobileNumber = dataRow["MobileNumber"].ToString();
+                    userData.Profile = dataRow["Profile"].ToString();
+                    userData.Service = dataRow["Service"].ToString();
+                    userData.UserType = dataRow["UserType"].ToString();
+                }
+                if (userData.Email != null)
+                {
+                    return userData;
                 }
                 else
                 {
@@ -94,7 +145,7 @@ namespace RepositoryLayer.Service
             {
                 throw new Exception(exception.Message);
             }
-        }
+         }
 
         /// <summary>
         /// User Login method
@@ -106,15 +157,10 @@ namespace RepositoryLayer.Service
             try
             {
                 var password = PasswordEncrypt.Encryptdata(loginModel.Password);
-
-                string connection = "";
-                SqlConnection sqlConnection = GetConnection(connection);
                 
-                SqlCommand sqlCommand = new SqlCommand("LoginUser", sqlConnection);
-                sqlCommand.CommandType = CommandType.StoredProcedure;
+                SqlCommand sqlCommand = GetCommand("LoginUser");
                 sqlCommand.Parameters.AddWithValue("@Email", loginModel.Email);
                 sqlCommand.Parameters.AddWithValue("@Password", password);
-                sqlConnection.Open();
                 SqlDataReader sqlDataReader = await sqlCommand.ExecuteReaderAsync();
                 var userData = new RegisterModel();
                 while (sqlDataReader.Read())
@@ -153,22 +199,22 @@ namespace RepositoryLayer.Service
                             signingCredentials: creadintials);
                         var returnToken = new JwtSecurityTokenHandler().WriteToken(token);
 
-                        /*var loginTime = DateTime.Now.ToString();
+                        var logTime = DateTime.Now.ToString();
                         RedisEndpoint redisEndpoint = new RedisEndpoint("localhost", 6379);
                         using (RedisClient client = new RedisClient(redisEndpoint))
                         {
-                            if (client.Get<string>(loginModel.Email + loginModel.Password) == null)
+                            if (client.Get<string>(returnToken) == null)
                             {
-                                client.Set<string>(loginModel.Email + loginModel.Password, loginTime);
-                                loginTime = client.Get<string>(loginModel.Email + loginModel.Password);
+                                client.Set<string>(returnToken, logTime);
+                                logTime = client.Get<string>(returnToken);
                             }
                             else
                             {
-                                client.Remove(loginModel.Email + loginModel.Password);
-                                client.Set<string>(loginModel.Email + loginModel.Password, loginTime);
-                                loginTime = client.Get<string>(loginModel.Email + loginModel.Password);
+                                client.Remove(returnToken);
+                                client.Set<string>(returnToken, logTime);
+                                logTime = client.Get<string>(returnToken);
                             }
-                        }*/
+                        }
 
                         var responseShow = new LoginResponseModel()
                         {
@@ -181,7 +227,7 @@ namespace RepositoryLayer.Service
                             Service=userData.Service,
                             UserType=userData.UserType,
                             Token = returnToken,
-                          //  LoginTime=loginTime
+                            LoginTime=logTime
                         };
                         return responseShow;
                     }
@@ -192,12 +238,12 @@ namespace RepositoryLayer.Service
                 }
                 else
                 {
-                    return null;
+                    return null; 
                 }
             }
-            catch (Exception exception)
+            catch (Exception)
             {
-                throw new Exception(exception.Message);
+                throw new Exception("Email or Passord is Not Correct");
             }
         }
 
@@ -210,12 +256,8 @@ namespace RepositoryLayer.Service
         {
             try
             {
-                string connection = "";
-                SqlConnection sqlConnection = GetConnection(connection);
-                SqlCommand sqlCommand = new SqlCommand("ForgetPassword", sqlConnection);
-                sqlCommand.CommandType = CommandType.StoredProcedure;
+                SqlCommand sqlCommand = GetCommand("ForgetPassword");
                 sqlCommand.Parameters.AddWithValue("@Email", forgetModel.Email);
-                sqlConnection.Open();
                 SqlDataReader sqlDataReader = await sqlCommand.ExecuteReaderAsync();
                 var userData = new RegisterModel();
                 while (sqlDataReader.Read())
@@ -257,10 +299,7 @@ namespace RepositoryLayer.Service
             {
                 string pass = PasswordEncrypt.Encryptdata(resetModel.NewPassword);
 
-                string connection = "";
-                SqlConnection sqlConnection = GetConnection(connection);
-                SqlCommand sqlCommand = new SqlCommand("ResetPassword", sqlConnection);
-                sqlCommand.CommandType = CommandType.StoredProcedure;
+                SqlCommand sqlCommand = GetCommand("ResetPassword");
 
                 ////token handler 
                 var handler = new JwtSecurityTokenHandler();
@@ -279,10 +318,8 @@ namespace RepositoryLayer.Service
 
                 sqlCommand.Parameters.AddWithValue("Email", jwtEmail);
                 sqlCommand.Parameters.AddWithValue("NewPassword", pass);
-                sqlConnection.Open();
                 ////save the changes asynchronuosly
                 var response = await sqlCommand.ExecuteNonQueryAsync();
-                sqlConnection.Close();
 
                 if (response > 0)
                 {
@@ -311,12 +348,9 @@ namespace RepositoryLayer.Service
             {
                 UploadImage uploadImage = new UploadImage(this.configuration, formFile);
                 var url = uploadImage.Upload(formFile);
-                SqlConnection sqlConnection = new SqlConnection(configuration["ConnectionStrings:connectionDb"]);
-                SqlCommand sqlCommand = new SqlCommand("AddProfile", sqlConnection);
-                sqlCommand.CommandType = CommandType.StoredProcedure;
+                SqlCommand sqlCommand = GetCommand("AddProfile");
                 sqlCommand.Parameters.AddWithValue("@UserId", userId);
                 sqlCommand.Parameters.AddWithValue("@Profile", url);
-                sqlConnection.Open();
                 SqlDataReader sqlDataReader = await sqlCommand.ExecuteReaderAsync();
                 var userData = new RegisterModel();
                 while (sqlDataReader.Read())
@@ -355,18 +389,6 @@ namespace RepositoryLayer.Service
             {
                 throw new Exception(exception.Message);
             }
-        }
-
-        /// <summary>
-        /// This method is for connection with database using connection string
-        /// </summary>
-        /// <param name="connectionName">connectionName parameter</param>
-        /// <returns>return the connection</returns>
-        public SqlConnection GetConnection(string connectionName)
-        {
-            SqlConnection connection = new SqlConnection(configuration["ConnectionStrings:connectionDb"]);
-            connection.Open();
-            return connection;
         }
     }
 }

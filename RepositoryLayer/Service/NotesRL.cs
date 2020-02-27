@@ -38,6 +38,21 @@ namespace RepositoryLayer.Service
             this.configuration = configuration;
         }
 
+        public SqlConnection GetConnection(string connectionName)
+        {
+            SqlConnection connection = new SqlConnection(configuration["ConnectionStrings:connectionDb"]);
+            connection.Open();
+            return connection;
+        }
+        public SqlCommand GetCommand(string command)
+        {
+            string con = "";
+            SqlConnection sqlConnection = GetConnection(con);
+            SqlCommand sqlCommand = new SqlCommand(command, sqlConnection);
+            sqlCommand.CommandType = CommandType.StoredProcedure;
+            return sqlCommand;
+        }
+   
         /// <summary>
         /// Add Note method
         /// </summary>
@@ -48,9 +63,8 @@ namespace RepositoryLayer.Service
         {
             try
             {
-                SqlConnection sqlConnection = new SqlConnection(configuration["ConnectionStrings:connectionDb"]);
-                SqlCommand sqlCommand = new SqlCommand("NoteAdd", sqlConnection);
-                sqlCommand.CommandType = CommandType.StoredProcedure;
+                //string command = "NoteAdd";
+                SqlCommand sqlCommand = GetCommand("NoteAdd");
                 sqlCommand.Parameters.AddWithValue("@Title", showNoteModel.Title);
                 sqlCommand.Parameters.AddWithValue("@Description", showNoteModel.Description);
                 sqlCommand.Parameters.AddWithValue("@Reminder", showNoteModel.Reminder);
@@ -62,7 +76,6 @@ namespace RepositoryLayer.Service
                 sqlCommand.Parameters.AddWithValue("@IsArchive", showNoteModel.IsArchive);
                 sqlCommand.Parameters.AddWithValue("@IsTrash", showNoteModel.IsTrash);
                 sqlCommand.Parameters.AddWithValue("@UserId", userId);
-                sqlConnection.Open();
                 SqlDataReader sqlDataReader = await sqlCommand.ExecuteReaderAsync();
                 var userData = new NoteModel();
                 while (sqlDataReader.Read())
@@ -113,16 +126,12 @@ namespace RepositoryLayer.Service
         {
             try
             {
-                SqlConnection sqlConnection = new SqlConnection(configuration["ConnectionStrings:connectionDb"]);
-                SqlCommand sqlCommand = new SqlCommand("NoteUpdate", sqlConnection);
-                sqlCommand.CommandType = CommandType.StoredProcedure;
+                SqlCommand sqlCommand = GetCommand("NoteUpdate");
                 sqlCommand.Parameters.AddWithValue("@Id", noteId);
                 sqlCommand.Parameters.AddWithValue("@Title", showUpdateNoteModel.Title);
                 sqlCommand.Parameters.AddWithValue("@Description", showUpdateNoteModel.Description);
                 sqlCommand.Parameters.AddWithValue("@ModifiedDate", DateTime.Now);
-                sqlCommand.Parameters.AddWithValue("@UserId", userId);
-                sqlConnection.Open();
-               
+                sqlCommand.Parameters.AddWithValue("@UserId", userId);              
                 var response = await sqlCommand.ExecuteNonQueryAsync();
                 if (response > 0)
                 {
@@ -157,11 +166,8 @@ namespace RepositoryLayer.Service
         {
             try
             {
-                SqlConnection sqlConnection = new SqlConnection(configuration["ConnectionStrings:connectionDb"]);
-                SqlCommand sqlCommand = new SqlCommand("GetAllNotes", sqlConnection);
-                sqlCommand.CommandType = CommandType.StoredProcedure;
+                SqlCommand sqlCommand = GetCommand("GetAllNotes");
                 sqlCommand.Parameters.AddWithValue("@UserId", userId);
-                sqlConnection.Open();
                 SqlDataReader sqlDataReader = await sqlCommand.ExecuteReaderAsync();
                 IList<NoteModel> noteList = new List<NoteModel>();
                 var userData = new NoteModel();
@@ -171,7 +177,7 @@ namespace RepositoryLayer.Service
                     userData.Id = Convert.ToInt32(sqlDataReader["Id"]);
                     userData.Title = sqlDataReader["Title"].ToString();
                     userData.Description = sqlDataReader["Description"].ToString();
-                    userData.Reminder = Convert.ToDateTime(sqlDataReader["Reminder"]);
+                    userData.Reminder = (sqlDataReader["Reminder"] as DateTime?).GetValueOrDefault();
                     userData.Color = sqlDataReader["Color"].ToString();
                     userData.Image = sqlDataReader["Image"].ToString();
                     userData.CreatedDate = Convert.ToDateTime(sqlDataReader["CreatedDate"]);
@@ -201,14 +207,10 @@ namespace RepositoryLayer.Service
         {
             try
             {
-                SqlConnection sqlConnection = new SqlConnection(configuration["ConnectionStrings:connectionDb"]);
-                SqlCommand sqlCommand = new SqlCommand("DeleteNote", sqlConnection);
-                sqlCommand.CommandType = CommandType.StoredProcedure;
+                SqlCommand sqlCommand = GetCommand("DeleteNote");
                 sqlCommand.Parameters.AddWithValue("@NoteId", noteId);
                 sqlCommand.Parameters.AddWithValue("@UserId", userId);
-                sqlConnection.Open();
                 var response = await sqlCommand.ExecuteNonQueryAsync();
-                sqlConnection.Close();
                 if (response > 0)
                 {
                     return "Note Deleted Successfully";
@@ -228,12 +230,9 @@ namespace RepositoryLayer.Service
         {
             try
             {
-                SqlConnection sqlConnection = new SqlConnection(configuration["ConnectionStrings:connectionDb"]);
-                SqlCommand sqlCommand = new SqlCommand("ArchiveNote", sqlConnection);
-                sqlCommand.CommandType = CommandType.StoredProcedure;
+                SqlCommand sqlCommand = GetCommand("ArchiveNote");
                 sqlCommand.Parameters.AddWithValue("@NoteId", noteId);
                 sqlCommand.Parameters.AddWithValue("@UserId", userId);
-                sqlConnection.Open();
                 SqlDataReader sqlDataReader = await sqlCommand.ExecuteReaderAsync();
                 var noteData = new NoteModel();
                 while (sqlDataReader.Read())
@@ -242,6 +241,7 @@ namespace RepositoryLayer.Service
                     noteData.Id = Convert.ToInt32(sqlDataReader["Id"]);
                     noteData.Title = sqlDataReader["Title"].ToString();
                     noteData.Description = sqlDataReader["Description"].ToString();
+                    noteData.Reminder = (sqlDataReader["Reminder"] as DateTime?).GetValueOrDefault();
                     noteData.Color = sqlDataReader["Color"].ToString();
                     noteData.Image = sqlDataReader["Image"].ToString();
                     noteData.CreatedDate = Convert.ToDateTime(sqlDataReader["CreatedDate"]);
@@ -286,12 +286,9 @@ namespace RepositoryLayer.Service
         {
             try
             {
-                SqlConnection sqlConnection = new SqlConnection(configuration["ConnectionStrings:connectionDb"]);
-                SqlCommand sqlCommand = new SqlCommand("TrashNote", sqlConnection);
-                sqlCommand.CommandType = CommandType.StoredProcedure;
+                SqlCommand sqlCommand = GetCommand("TrashNote");
                 sqlCommand.Parameters.AddWithValue("@NoteId", noteId);
                 sqlCommand.Parameters.AddWithValue("@UserId", userId);
-                sqlConnection.Open();
                 SqlDataReader sqlDataReader = await sqlCommand.ExecuteReaderAsync();
                 var noteData = new NoteModel();
                 while (sqlDataReader.Read())
@@ -300,6 +297,7 @@ namespace RepositoryLayer.Service
                     noteData.Id = Convert.ToInt32(sqlDataReader["Id"]);
                     noteData.Title = sqlDataReader["Title"].ToString();
                     noteData.Description = sqlDataReader["Description"].ToString();
+                    noteData.Reminder = (sqlDataReader["Reminder"] as DateTime?).GetValueOrDefault();
                     noteData.Color = sqlDataReader["Color"].ToString();
                     noteData.Image = sqlDataReader["Image"].ToString();
                     noteData.CreatedDate = Convert.ToDateTime(sqlDataReader["CreatedDate"]);
@@ -343,12 +341,9 @@ namespace RepositoryLayer.Service
         {
             try
             {
-                SqlConnection sqlConnection = new SqlConnection(configuration["ConnectionStrings:connectionDb"]);
-                SqlCommand sqlCommand = new SqlCommand("PinNote", sqlConnection);
-                sqlCommand.CommandType = CommandType.StoredProcedure;
+                SqlCommand sqlCommand = GetCommand("PinNote");
                 sqlCommand.Parameters.AddWithValue("@NoteId", noteId);
                 sqlCommand.Parameters.AddWithValue("@UserId", userId);
-                sqlConnection.Open();
                 SqlDataReader sqlDataReader = await sqlCommand.ExecuteReaderAsync();
                 var noteData = new NoteModel();
                 while (sqlDataReader.Read())
@@ -357,6 +352,7 @@ namespace RepositoryLayer.Service
                     noteData.Id = Convert.ToInt32(sqlDataReader["Id"]);
                     noteData.Title = sqlDataReader["Title"].ToString();
                     noteData.Description = sqlDataReader["Description"].ToString();
+                    noteData.Reminder = (sqlDataReader["Reminder"] as DateTime?).GetValueOrDefault();
                     noteData.Color = sqlDataReader["Color"].ToString();
                     noteData.Image = sqlDataReader["Image"].ToString();
                     noteData.CreatedDate = Convert.ToDateTime(sqlDataReader["CreatedDate"]);
@@ -400,13 +396,10 @@ namespace RepositoryLayer.Service
         {
             try
             {
-                SqlConnection sqlConnection = new SqlConnection(configuration["ConnectionStrings:connectionDb"]);
-                SqlCommand sqlCommand = new SqlCommand("ColorNote", sqlConnection);
-                sqlCommand.CommandType = CommandType.StoredProcedure;
+                SqlCommand sqlCommand = GetCommand("ColorNote");
                 sqlCommand.Parameters.AddWithValue("@UserId", userId);
                 sqlCommand.Parameters.AddWithValue("@NoteId", noteId);
                 sqlCommand.Parameters.AddWithValue("@Color", colorModel.Color);
-                sqlConnection.Open();
                 SqlDataReader sqlDataReader = await sqlCommand.ExecuteReaderAsync();
                 var noteData = new NoteModel();
                 while (sqlDataReader.Read())
@@ -415,6 +408,7 @@ namespace RepositoryLayer.Service
                     noteData.Id = Convert.ToInt32(sqlDataReader["Id"]);
                     noteData.Title = sqlDataReader["Title"].ToString();
                     noteData.Description = sqlDataReader["Description"].ToString();
+                    noteData.Reminder = (sqlDataReader["Reminder"] as DateTime?).GetValueOrDefault();
                     noteData.Color = sqlDataReader["Color"].ToString();
                     noteData.Image = sqlDataReader["Image"].ToString();
                     noteData.CreatedDate = Convert.ToDateTime(sqlDataReader["CreatedDate"]);
@@ -458,13 +452,10 @@ namespace RepositoryLayer.Service
         {
             try
             {
-                SqlConnection sqlConnection = new SqlConnection(configuration["ConnectionStrings:connectionDb"]);
-                SqlCommand sqlCommand = new SqlCommand("AddReminder", sqlConnection);
-                sqlCommand.CommandType = CommandType.StoredProcedure;
+                SqlCommand sqlCommand = GetCommand("AddReminder");
                 sqlCommand.Parameters.AddWithValue("@UserId", userId);
                 sqlCommand.Parameters.AddWithValue("@NoteId", noteId);
                 sqlCommand.Parameters.AddWithValue("@Reminder", dateTime);
-                sqlConnection.Open();
                 SqlDataReader sqlDataReader = await sqlCommand.ExecuteReaderAsync();
                 var noteData = new NoteModel();
                 while (sqlDataReader.Read())
@@ -473,7 +464,7 @@ namespace RepositoryLayer.Service
                     noteData.Id = Convert.ToInt32(sqlDataReader["Id"]);
                     noteData.Title = sqlDataReader["Title"].ToString();
                     noteData.Description = sqlDataReader["Description"].ToString();
-                    noteData.Reminder = Convert.ToDateTime(sqlDataReader["Reminder"]);
+                    noteData.Reminder = (sqlDataReader["Reminder"] as DateTime?).GetValueOrDefault();
                     noteData.Image = sqlDataReader["Image"].ToString();
                     noteData.Color = sqlDataReader["Color"].ToString();
                     noteData.CreatedDate=Convert.ToDateTime(sqlDataReader["CreatedDate"]);
@@ -516,12 +507,9 @@ namespace RepositoryLayer.Service
         {
             try
             {
-                SqlConnection sqlConnection = new SqlConnection(configuration["ConnectionStrings:connectionDb"]);
-                SqlCommand sqlCommand = new SqlCommand("DeleteReminder", sqlConnection);
-                sqlCommand.CommandType = CommandType.StoredProcedure;
+                SqlCommand sqlCommand = GetCommand("DeleteReminder");
                 sqlCommand.Parameters.AddWithValue("@UserId", userId);
                 sqlCommand.Parameters.AddWithValue("@NoteId", noteId);
-                sqlConnection.Open();
                 var response = await sqlCommand.ExecuteNonQueryAsync();
                 if (response > 0)
                 {
@@ -544,13 +532,10 @@ namespace RepositoryLayer.Service
             {
                 UploadImage uploadImage = new UploadImage(this.configuration, formFile);
                 var url = uploadImage.Upload(formFile);
-                SqlConnection sqlConnection = new SqlConnection(configuration["ConnectionStrings:connectionDb"]);
-                SqlCommand sqlCommand = new SqlCommand("ImageOnNote", sqlConnection);
-                sqlCommand.CommandType = CommandType.StoredProcedure;
+                SqlCommand sqlCommand = GetCommand("ImageOnNote");
                 sqlCommand.Parameters.AddWithValue("@UserId", userId);
                 sqlCommand.Parameters.AddWithValue("@NoteId", noteId);
                 sqlCommand.Parameters.AddWithValue("@Image", url);
-                sqlConnection.Open();
                 SqlDataReader sqlDataReader = await sqlCommand.ExecuteReaderAsync();
                 var noteData = new NoteModel();
                 while (sqlDataReader.Read())
@@ -559,6 +544,7 @@ namespace RepositoryLayer.Service
                     noteData.Id = Convert.ToInt32(sqlDataReader["Id"]);
                     noteData.Title = sqlDataReader["Title"].ToString();
                     noteData.Description = sqlDataReader["Description"].ToString();
+                    noteData.Reminder = (sqlDataReader["Reminder"] as DateTime?).GetValueOrDefault();
                     noteData.Color = sqlDataReader["Color"].ToString();
                     noteData.Image = sqlDataReader["Image"].ToString();
                     noteData.CreatedDate = Convert.ToDateTime(sqlDataReader["CreatedDate"]);
@@ -567,7 +553,6 @@ namespace RepositoryLayer.Service
                     noteData.IsPin = Convert.ToBoolean(sqlDataReader["IsPin"]);
                     noteData.IsTrash = Convert.ToBoolean(sqlDataReader["IsTrash"]);
                 }
-                sqlConnection.Close();
                 if (noteData != null)
                 {
                     var showResponse = new NoteModel()
@@ -602,11 +587,8 @@ namespace RepositoryLayer.Service
         {
             try
             {
-                SqlConnection sqlConnection = new SqlConnection(configuration["ConnectionStrings:connectionDb"]);
-                SqlCommand sqlCommand = new SqlCommand("AllTrashNotes", sqlConnection);
-                sqlCommand.CommandType = CommandType.StoredProcedure;
+                SqlCommand sqlCommand = GetCommand("AllTrashNotes");
                 sqlCommand.Parameters.AddWithValue("@UserId", userId);
-                sqlConnection.Open();
                 SqlDataReader sqlDataReader = await sqlCommand.ExecuteReaderAsync();
                 var noteData = new NoteModel();
                 IList<NoteModel> trashList = new List<NoteModel>();
@@ -616,6 +598,7 @@ namespace RepositoryLayer.Service
                     noteData.Id = Convert.ToInt32(sqlDataReader["Id"]);
                     noteData.Title = sqlDataReader["Title"].ToString();
                     noteData.Description = sqlDataReader["Description"].ToString();
+                    noteData.Reminder = (sqlDataReader["Reminder"] as DateTime?).GetValueOrDefault();
                     noteData.Color = sqlDataReader["Color"].ToString();
                     noteData.Image = sqlDataReader["Image"].ToString();
                     noteData.CreatedDate = Convert.ToDateTime(sqlDataReader["CreatedDate"]);
@@ -644,11 +627,49 @@ namespace RepositoryLayer.Service
         {
             try
             {
-                SqlConnection sqlConnection = new SqlConnection(configuration["ConnectionStrings:connectionDb"]);
-                SqlCommand sqlCommand = new SqlCommand("AllArchiveNotes", sqlConnection);
-                sqlCommand.CommandType = CommandType.StoredProcedure;
+                SqlCommand sqlCommand = GetCommand("AllArchiveNotes");
                 sqlCommand.Parameters.AddWithValue("@UserId", userId);
-                sqlConnection.Open();
+                SqlDataReader sqlDataReader = await sqlCommand.ExecuteReaderAsync();
+                var noteData = new NoteModel();
+                IList<NoteModel> noteList = new List<NoteModel>();
+                while (sqlDataReader.Read())
+                {
+                    noteData = new NoteModel();
+                    noteData.Id = Convert.ToInt32(sqlDataReader["Id"]);
+                    noteData.Title = sqlDataReader["Title"].ToString();
+                    noteData.Description = sqlDataReader["Description"].ToString();
+                    noteData.Reminder = (sqlDataReader["Reminder"] as DateTime?).GetValueOrDefault();
+                    noteData.Image = sqlDataReader["Image"].ToString();
+                    noteData.Color = sqlDataReader["Color"].ToString();
+                    noteData.CreatedDate = Convert.ToDateTime(sqlDataReader["CreatedDate"]);
+                    noteData.ModifiedDate = Convert.ToDateTime(sqlDataReader["ModifiedDate"]);
+                    noteData.IsArchive = Convert.ToBoolean(sqlDataReader["IsArchive"]);
+                    noteData.IsPin = Convert.ToBoolean(sqlDataReader["IsPin"]);
+                    noteData.IsTrash = Convert.ToBoolean(sqlDataReader["IsTrash"]);
+                    noteData.UserId = Convert.ToInt32(sqlDataReader["UserId"]);
+                    noteList.Add(noteData);
+                }
+                if (noteData != null)
+                {
+                    return noteList;
+                }
+                else
+                {
+                    return null;
+                }
+            }
+            catch (Exception exception)
+            {
+                throw new Exception(exception.Message);
+            }
+        }
+
+        public async Task<IList<NoteModel>> GetAllPinNotes(int userId)
+        {
+            try
+            {
+                SqlCommand sqlCommand = GetCommand("AllPinNotes");
+                sqlCommand.Parameters.AddWithValue("@UserId", userId);
                 SqlDataReader sqlDataReader = await sqlCommand.ExecuteReaderAsync();
                 var noteData = new NoteModel();
                 IList<NoteModel> noteList = new List<NoteModel>();
@@ -683,15 +704,126 @@ namespace RepositoryLayer.Service
             }
         }
 
-        public async Task<IList<NoteModel>> GetAllPinNotes(int userId)
+        public async Task<AddCollaboratorModel> AddCollaborator(int createdId, ShowCollaboratorModel showCollaboratorModel)
         {
             try
             {
-                SqlConnection sqlConnection = new SqlConnection(configuration["ConnectionStrings:connectionDb"]);
-                SqlCommand sqlCommand = new SqlCommand("AllPinNotes", sqlConnection);
-                sqlCommand.CommandType = CommandType.StoredProcedure;
+                SqlCommand sqlCommand = GetCommand("AddCollaborator");
+                sqlCommand.Parameters.AddWithValue("@NoteId", showCollaboratorModel.NoteId);
+                sqlCommand.Parameters.AddWithValue("@CreatedDate", DateTime.Now);
+                sqlCommand.Parameters.AddWithValue("@ModifiedDate", DateTime.Now);
+                sqlCommand.Parameters.AddWithValue("@ReceiverId", showCollaboratorModel.ReceiverId);
+                SqlDataReader sqlDataReader = await sqlCommand.ExecuteReaderAsync();
+                var collaboratorData = new AddCollaboratorModel();
+                while (sqlDataReader.Read())
+                {
+                    collaboratorData = new AddCollaboratorModel();
+                    collaboratorData.Id = Convert.ToInt32(sqlDataReader["Id"]);
+                    collaboratorData.NoteId = Convert.ToInt32(sqlDataReader["NoteId"]);
+                    collaboratorData.CreatedId = Convert.ToInt32(sqlDataReader["CreatedId"]);
+                    collaboratorData.CreatedDate = Convert.ToDateTime(sqlDataReader["CreatedDate"]);
+                    collaboratorData.ModifiedDate = Convert.ToDateTime(sqlDataReader["ModifiedDate"]);
+                    collaboratorData.ReceiverId = Convert.ToInt32(sqlDataReader["ReceiverId"]);
+                    collaboratorData.ReceiverProfile = sqlDataReader["ReceiverProfile"].ToString();
+                }
+                if (collaboratorData != null)
+                {
+                    var showResponse = new AddCollaboratorModel()
+                    {
+                        Id = collaboratorData.Id,
+                        NoteId = collaboratorData.NoteId,
+                        CreatedId = createdId,
+                        CreatedDate = collaboratorData.CreatedDate,
+                        ModifiedDate = collaboratorData.ModifiedDate,
+                        ReceiverId = collaboratorData.ReceiverId,
+                        ReceiverProfile = collaboratorData.ReceiverProfile
+                    };
+                    return showResponse;
+                }
+                else
+                {
+                    return null;
+                }
+            }
+            catch (Exception exception)
+            {
+                throw new Exception(exception.Message);
+            }
+        }
+
+
+        public async Task<string> DeleteCollaborator(int userId, int noteId, int collaboratorId)
+        {
+            try
+            {
+                SqlCommand sqlCommand = GetCommand("DeleteCollaborator");
+                sqlCommand.Parameters.AddWithValue("@CollaboratorId", collaboratorId);
+                sqlCommand.Parameters.AddWithValue("@NoteId", noteId);
+                var response = await sqlCommand.ExecuteNonQueryAsync();
+                if (response > 0)
+                {
+                    return "Collaborator Delete Successfully";
+                }
+                else
+                {
+                    return null;
+                }
+            }
+            catch (Exception exception)
+            {
+                throw new Exception(exception.Message);
+            }
+        }
+
+
+        public async Task<IList<NotesLabelCollaboratorModel>> NoteLabelCollaborator(int userId)
+        {
+            try
+            {
+                SqlCommand sqlCommand = GetCommand("GetNotesWithCollaboratorAndLabel");
                 sqlCommand.Parameters.AddWithValue("@UserId", userId);
-                sqlConnection.Open();
+                SqlDataReader sqlDataReader = await sqlCommand.ExecuteReaderAsync();
+                var noteData = new NotesLabelCollaboratorModel();
+                IList<NotesLabelCollaboratorModel> noteList = new List<NotesLabelCollaboratorModel>();
+
+                while (sqlDataReader.Read())
+                {
+                    noteData = new NotesLabelCollaboratorModel();
+                    noteData.NoteId = Convert.ToInt32(sqlDataReader["Id"]);
+                    noteData.Title = sqlDataReader["Title"].ToString();
+                    noteData.Description = sqlDataReader["Description"].ToString();
+                    noteData.Reminder = (sqlDataReader["Reminder"] as DateTime?).GetValueOrDefault();
+                    noteData.Image = sqlDataReader["Image"].ToString();
+                    noteData.Color = sqlDataReader["Color"].ToString();
+                    noteData.CreatedDate = Convert.ToDateTime(sqlDataReader["CreatedDate"]);
+                    noteData.ModifiedDate = Convert.ToDateTime(sqlDataReader["ModifiedDate"]);
+                    noteData.IsArchive = Convert.ToBoolean(sqlDataReader["IsArchive"]);
+                    noteData.IsPin = Convert.ToBoolean(sqlDataReader["IsPin"]);
+                    noteData.IsTrash = Convert.ToBoolean(sqlDataReader["IsTrash"]);
+                    noteData.UserId = Convert.ToInt32(sqlDataReader["UserId"]);
+
+                    noteData.Label = sqlDataReader["Label"] as string;
+                    noteData.LabelId = (sqlDataReader["LabelId"] as int?).GetValueOrDefault();
+                    noteData.ReceiverId = (sqlDataReader["ReceiverId"] as int?).GetValueOrDefault();
+                    noteData.ReceiverProfile = sqlDataReader["ReceiverProfile"] as string;
+
+                    noteList.Add(noteData);
+                }
+                return noteList;
+            }
+            catch (Exception exception)
+            {
+                throw new Exception(exception.Message);  
+            }
+        }
+
+        public async Task<IList<NoteModel>> SearchNotes(int userId, string searchWord)
+        {
+            try
+            {
+                SqlCommand sqlCommand = GetCommand("SearchNote");
+                sqlCommand.Parameters.AddWithValue("@UserId", userId);
+                sqlCommand.Parameters.AddWithValue("@SearchWord", searchWord);
                 SqlDataReader sqlDataReader = await sqlCommand.ExecuteReaderAsync();
                 var noteData = new NoteModel();
                 IList<NoteModel> noteList = new List<NoteModel>();
@@ -701,17 +833,18 @@ namespace RepositoryLayer.Service
                     noteData.Id = Convert.ToInt32(sqlDataReader["Id"]);
                     noteData.Title = sqlDataReader["Title"].ToString();
                     noteData.Description = sqlDataReader["Description"].ToString();
+                    noteData.Reminder = (sqlDataReader["Reminder"] as DateTime?).GetValueOrDefault();
                     noteData.Image = sqlDataReader["Image"].ToString();
                     noteData.Color = sqlDataReader["Color"].ToString();
+                    noteData.IsPin = Convert.ToBoolean(sqlDataReader["IsPin"]);
+                    noteData.IsArchive = Convert.ToBoolean(sqlDataReader["IsArchive"]);
+                    noteData.IsTrash = Convert.ToBoolean(sqlDataReader["IsTrash"]);
                     noteData.CreatedDate = Convert.ToDateTime(sqlDataReader["CreatedDate"]);
                     noteData.ModifiedDate = Convert.ToDateTime(sqlDataReader["ModifiedDate"]);
-                    noteData.IsArchive = Convert.ToBoolean(sqlDataReader["IsArchive"]);
-                    noteData.IsPin = Convert.ToBoolean(sqlDataReader["IsPin"]);
-                    noteData.IsTrash = Convert.ToBoolean(sqlDataReader["IsTrash"]);
                     noteData.UserId = Convert.ToInt32(sqlDataReader["UserId"]);
                     noteList.Add(noteData);
                 }
-                if (noteData != null)
+                if (noteList != null)
                 {
                     return noteList;
                 }

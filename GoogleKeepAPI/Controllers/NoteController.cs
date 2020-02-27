@@ -402,5 +402,97 @@ namespace GoogleKeepAPI.Controllers
                 return this.BadRequest(new { message = exception.Message });
             }
         }
+
+        [HttpPost]
+        [Route("AddCollaborator")]
+        public async Task<IActionResult> AddCollaborator(ShowCollaboratorModel showCollaboratorModel)
+        {
+            try
+            {
+                var claim = Convert.ToInt32(HttpContext.User.Claims.FirstOrDefault(c => c.Type == "Id").Value);
+                var data = await noteBL.AddCollaborator(claim, showCollaboratorModel);
+                if (data != null)
+                {
+                    return this.Ok(new { status = "true", message = "Add Collaborator Successfully", data });
+                }
+                else
+                {
+                    return this.BadRequest(new { staus = "false", message = "Failed To Add Collaborator" });
+                }
+            }
+            catch (Exception exception)
+            {
+                return this.BadRequest(new { message = exception.Message });
+            }
+        }
+
+        [HttpDelete]
+        [Route("{noteId}/Collaborator/{collaboratorId}")]
+        public async Task<IActionResult> DeleteCollaborator(int noteId, int collaboratorId)
+        {
+            try
+            {
+                var claim = Convert.ToInt32(HttpContext.User.Claims.FirstOrDefault(c => c.Type == "Id").Value);
+                var data = await noteBL.DeleteCollaborator(claim, noteId, collaboratorId);
+                if (data != null)
+                {
+                    return this.Ok(new { status = "true", message = "Delete Collaborator Successfully" });
+                }
+                else
+                {
+                    return this.BadRequest(new { staus = "false", message = "Failed To Delete Collaborator" });
+                }
+            }
+            catch (Exception exception)
+            {
+                return this.BadRequest(new { message = exception.Message });
+            }
+        }
+
+        [HttpGet]
+        [Route("NotesLabelCollaborator")]
+        public async Task<IActionResult> NotesLabelCollaborator()
+        {
+            try
+            {
+                var claim = Convert.ToInt32(HttpContext.User.Claims.FirstOrDefault(c => c.Type == "Id").Value);
+                var data = await noteBL.NoteLabelCollaborator(claim);
+                if (data != null)
+                {
+                    return this.Ok(new { status = "true", message = "Notes Label Collaborator", data });
+                }
+                else
+                {
+                    return this.BadRequest(new { staus = "false", message = "Failed To Get Notes" });
+                }
+            }
+            catch (Exception exception)
+            {
+                return this.BadRequest(new { message = exception.Message });
+            }
+        }
+
+        [HttpGet]
+        [Route("Search")]
+        public async Task<IActionResult> SearchNotes(string searchWord)
+        {
+            try
+            {
+                var claim = Convert.ToInt32(HttpContext.User.Claims.FirstOrDefault(c => c.Type == "Id").Value);
+                var data = await noteBL.SearchNotes(claim, searchWord);
+                if (data != null)
+                {
+                    return this.Ok(new { status = "true", message = "Searched Notes", data });
+                }
+                else
+                {
+                    return this.Ok(new { staus = "false", message = "Notes Not Available" });
+                }
+            }
+            catch (Exception exception)
+            {
+                return this.BadRequest(new { message = exception.Message });
+            }
+        }
     }
 }

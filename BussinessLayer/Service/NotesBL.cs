@@ -296,5 +296,76 @@ namespace BussinessLayer.Service
                 throw new Exception(exception.Message);
             }
         }
+
+        public Task<AddCollaboratorModel> AddCollaborator(int userId, ShowCollaboratorModel showCollaboratorModel)
+        {
+            try
+            {
+                if (userId > 0)
+                {
+                    return noteRL.AddCollaborator(userId, showCollaboratorModel);
+                }
+                else
+                {
+                    return null;
+                }
+            }
+            catch (Exception exception)
+            {
+                throw new Exception(exception.Message);
+            }
+        }
+
+
+        public async Task<string> DeleteCollaborator(int userId, int noteId, int collaboratorId)
+        {
+            try
+            {
+                if (userId > 0 && noteId > 0 && collaboratorId > 0)
+                {
+                    return await noteRL.DeleteCollaborator(userId, noteId, collaboratorId);
+                }
+                else
+                {
+                    return null;
+                }
+            }
+            catch (Exception exception)
+            {
+                throw new Exception(exception.Message);
+            }
+        }
+
+
+        public async Task<IList<NotesLabelCollaboratorModel>> NoteLabelCollaborator(int userId)
+        {
+            try
+            {
+                    return await noteRL.NoteLabelCollaborator(userId);
+            }
+            catch (Exception exception)
+            {
+                throw new Exception(exception.Message);
+            }
+        }
+
+        public async Task<IList<NoteModel>> SearchNotes(int userId, string searchWord)
+        {
+            try
+            {
+                if (userId > 0)
+                {
+                    return await noteRL.SearchNotes(userId, searchWord);
+                }
+                else
+                {
+                    return null;
+                }
+            }
+            catch (Exception exception)
+            {
+                throw new Exception(exception.Message);
+            }
+        }
     }
 }
