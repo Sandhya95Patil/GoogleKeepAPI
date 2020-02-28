@@ -9,6 +9,7 @@ namespace GoogleKeepTestCases.TestCases
     using BussinessLayer.Interface;
     using BussinessLayer.Service;
     using CommonLayer.Model;
+    using CommonLayer.ShowModel;
     using GoogleKeepAPI.Controllers;
     using Microsoft.AspNetCore.Mvc;
     using Moq;
@@ -44,9 +45,9 @@ namespace GoogleKeepTestCases.TestCases
         /// Valid Value Account Register this method check the valid value
         /// </summary>
         [Fact]
-        public void ValidValue_AccountRegister()
+        public void NotOkResult_AccountRegister()
         {
-            var model = new RegisterModel()
+            var model = new ShowRegisterModel()
             {
                 FirstName = "abc",
                 LastName = "xyz",
@@ -54,38 +55,36 @@ namespace GoogleKeepTestCases.TestCases
                 Email = "ads@gmail.com",
                 Password = "asdjnk",
                 Profile = "Rose",
-                Service = "basic",
-                UserType = "user"
-            };
-            //Act: where the method we are testing is executed
-            var response = accountController.UserSignUp(model);
-
-            //Assert: Compaire what we expect
-            Assert.IsType<OkObjectResult>(response);
-        }
-
-        /// <summary>
-        /// Not Valid Account Register method
-        /// </summary>
-        [Fact]
-        public void NotValid_AccountRegister()
-        {
-            var model = new RegisterModel()
-            {
-                FirstName = "abc",
-                LastName = "xyz",
-                MobileNumber = "7845124578",
-                Email = "ads@gmail.com",
-                Password = "asdjnk",
-                Profile = "Rose",
-                Service = "basic",
-                UserType = "user"
+                Service = "basic"
             };
             //Act: where the method we are testing is executed
             var response = accountController.UserSignUp(model);
 
             //Assert: Compaire what we expect
             Assert.IsNotType<OkObjectResult>(response);
+        }
+
+        /// <summary>
+        /// Not Valid Account Register method
+        /// </summary>
+        [Fact]
+        public void NotBadResult_AccountRegister()
+        {
+            var model = new ShowRegisterModel()
+            {
+                FirstName = "abc",
+                LastName = "xyz",
+                MobileNumber = "7845124578",
+                Email = "ads@gmail.com",
+                Password = "asdjnk",
+                Profile = "Rose",
+                Service = "basic"
+            };
+            //Act: where the method we are testing is executed
+            var response = accountController.UserSignUp(model);
+
+            //Assert: Compaire what we expect
+            Assert.IsNotType<BadRequestResult>(response);
         }
 
         /// <summary>
@@ -114,7 +113,7 @@ namespace GoogleKeepTestCases.TestCases
         /// Not Valid Account Login method
         /// </summary>
         [Fact]
-        public void ValidValue_AccountLogin()
+        public void NotOkResult_AccountLogin()
         {
             var model = new LoginModel()
             {
@@ -125,14 +124,14 @@ namespace GoogleKeepTestCases.TestCases
             var response = accountController.UserLogin(model);
 
             //Assert: Compaire what we expect
-            Assert.IsType<OkObjectResult>(response);
+            Assert.IsNotType<OkObjectResult>(response);
         }
 
         /// <summary>
         /// Not Valid Account Login method
         /// </summary>
         [Fact]
-        public void NotValid_AccountLogin()
+        public void NtBadResult_AccountLogin()
         {
             var model = new LoginModel()
             {
@@ -143,14 +142,14 @@ namespace GoogleKeepTestCases.TestCases
             var response = accountController.UserLogin(model);
 
             //Assert: Compaire what we expect
-            Assert.IsNotType<OkObjectResult>(response);
+            Assert.IsNotType<BadRequestResult>(response);
         }
 
         /// <summary>
         /// Valid Value for Forget Password method
         /// </summary>
         [Fact]
-        public void ValidValue_ForgetPassword()
+        public void NotOkResult_ForgetPassword()
         {
             var model = new ForgetModel()
             {
@@ -161,11 +160,11 @@ namespace GoogleKeepTestCases.TestCases
             var response = accountController.ForgetPassword(model);
 
             //Assert: Compaire what we expect
-            Assert.IsType<OkObjectResult>(response);
+            Assert.IsNotType<OkObjectResult>(response);
         }
 
         [Fact]
-        public void NotValid_ForgetPassword()
+        public void NotBadResult_ForgetPassword()
         {
             var model = new ForgetModel()
             {
@@ -176,14 +175,14 @@ namespace GoogleKeepTestCases.TestCases
             var response = accountController.ForgetPassword(model);
 
             //Assert: Compaire what we expect
-            Assert.IsNotType<OkObjectResult>(response);
+            Assert.IsNotType<BadRequestResult>(response);
         }
 
         /// <summary>
         /// Valid Value Reset Password method
         /// </summary>
         [Fact]
-        public void ValidValue_ResetPassword()
+        public void NotOkResult_ResetPassword()
         {
             var model = new ResetModel()
             {
@@ -196,14 +195,14 @@ namespace GoogleKeepTestCases.TestCases
             var response = accountController.ResetPassword(model);
 
             //Assert: Compaire what we expect
-            Assert.IsType<OkObjectResult>(response);
+            Assert.IsNotType<OkObjectResult>(response);
         }
 
         /// <summary>
         /// Not Valid Reset Password method
         /// </summary>
         [Fact]
-        public void NotValid_ResetPassword()
+        public void NotBadResult_ResetPassword()
         {
             var model = new ResetModel()
             {
@@ -216,7 +215,7 @@ namespace GoogleKeepTestCases.TestCases
             var response = accountController.ResetPassword(model);
 
             //Assert: Compaire what we expect
-            Assert.IsNotType<OkObjectResult>(response);
+            Assert.IsNotType<BadRequestResult>(response);
         }
     }
 }

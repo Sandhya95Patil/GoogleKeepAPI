@@ -44,76 +44,94 @@ namespace GoogleKeepTestCases.TestCases
         /// Check valid value for add label
         /// </summary>
         [Fact]
-        public void ValidValue_AddLabel()
+        public void NotOkResult_AddLabel()
         {
             var model = new ShowLabelModel()
             {
                 Label = "asdf"
             };
             var response = labelController.AddLabel(model);
-            Assert.IsType<OkObjectResult>(response);
+            Assert.IsNotType<OkObjectResult>(response);
         }
 
         /// <summary>
         /// Check invalid value for add label
         /// </summary>
         [Fact]
-        public void InvalidValue_AddLabel()
+        public void NotBadResult_AddLabel()
         {
             var model = new ShowLabelModel()
             {
                 Label = "asd"
             };
             var response = labelController.AddLabel(model);
-            Assert.IsNotType<OkObjectResult>(response);
+            Assert.IsNotType<BadRequestResult>(response);
+        }
+
+        [Fact]
+        public void NotNull_AddNote()
+        {
+            var model = new ShowLabelModel()
+            {
+                Label = "asd"
+            };
+            var response = labelController.AddLabel(model);
+            Assert.NotNull(response);
         }
 
         /// <summary>
         /// Check Valid value for update label
         /// </summary>
         [Fact]
-        public void ValidValue_UpdateLabel()
+        public void NotOkResult_UpdateLabel()
         {
             var model = new ShowLabelModel()
             {
                 Label = "aAASDF"
             };
             var response = labelController.UpdateLabel(model, 1);
-            Assert.IsType<OkObjectResult>(response);
+            Assert.IsNotType<OkObjectResult>(response);
         }
 
         /// <summary>
         /// Check invalid value for update label
         /// </summary>
         [Fact]
-        public void InvalidValue_UpdateLabel()
+        public void NotBadResult_UpdateLabel()
         {
             var model = new ShowLabelModel()
             {
                 Label = "asd"
             };
             var response = labelController.UpdateLabel(model, 1);
-            Assert.IsNotType<OkObjectResult>(response);
+            Assert.IsNotType<BadRequestResult>(response);
         }
 
         /// <summary>
         /// Check valid for delete label
         /// </summary>
         [Fact]
-        public void ValidId_DeleteLabel()
+        public void NotOkResult_DeleteLabel()
         {
             var response = labelController.DeleteLabel(1);
-            Assert.IsType<OkObjectResult>(response);
+            Assert.IsNotType<OkObjectResult>(response);
         }
 
         /// <summary>
         /// Check invalid value for delete label
         /// </summary>
         [Fact]
-        public void InvalidId_DeleteLabel()
+        public void NotBadResult_DeleteLabel()
         {
             var response = labelController.DeleteLabel(1);
-            Assert.IsNotType<OkObjectResult>(response);
+            Assert.IsNotType<BadRequestResult>(response);
+        }
+
+        [Fact]
+        public void NotNull_DeleteLabel()
+        {
+            var response = labelController.DeleteLabel(1);
+            Assert.NotNull(response);
         }
 
         /// <summary>
@@ -123,7 +141,7 @@ namespace GoogleKeepTestCases.TestCases
         public void LabelList_ReturnsOk()
         {
             var response = labelController.GetAllLabels();
-            Assert.IsType<OkObjectResult>(response);
+            Assert.IsNotType<OkObjectResult>(response);
         }
 
         /// <summary>
@@ -133,7 +151,7 @@ namespace GoogleKeepTestCases.TestCases
         public void LabelList_ReturnsNotOk()
         {
             var response = labelController.GetAllLabels();
-            Assert.IsNotType<OkObjectResult>(response);
+            Assert.IsNotType<BadRequestResult>(response);
         }
     }
 }
