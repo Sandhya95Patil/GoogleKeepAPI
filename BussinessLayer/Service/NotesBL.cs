@@ -336,19 +336,6 @@ namespace BussinessLayer.Service
             }
         }
 
-
-        public async Task<IList<NotesLabelCollaboratorModel>> NoteLabelCollaborator(int userId)
-        {
-            try
-            {
-                    return await noteRL.NoteLabelCollaborator(userId);
-            }
-            catch (Exception exception)
-            {
-                throw new Exception(exception.Message);
-            }
-        }
-
         public async Task<IList<NoteModel>> SearchNotes(int userId, string searchWord)
         {
             try
@@ -356,6 +343,25 @@ namespace BussinessLayer.Service
                 if (userId > 0)
                 {
                     return await noteRL.SearchNotes(userId, searchWord);
+                }
+                else
+                {
+                    return null;
+                }
+            }
+            catch (Exception exception)
+            {
+                throw new Exception(exception.Message);
+            }
+        }
+
+        public Task<(IList<NoteModel>, IList<NoteLabelModel>, IList<AddCollaboratorModel>)> NoteLabelCollaborator(int userId)
+        {
+            try
+            {
+                if (userId > 0)
+                {
+                    return noteRL.NoteLabelCollaborator(userId);
                 }
                 else
                 {

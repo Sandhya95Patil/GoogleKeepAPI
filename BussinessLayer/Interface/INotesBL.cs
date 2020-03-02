@@ -62,7 +62,7 @@ namespace BussinessLayer.Interface
         Task<IList<NoteModel>> GetAllPinNotes(int userId);
         Task<AddCollaboratorModel> AddCollaborator(int userId, ShowCollaboratorModel showCollaboratorModel);
         Task<string> DeleteCollaborator(int userId, int noteId, int collaboratorId);
-        Task<IList<NotesLabelCollaboratorModel>> NoteLabelCollaborator(int userId);
+        Task<(IList<NoteModel>, IList<NoteLabelModel>, IList<AddCollaboratorModel>)> NoteLabelCollaborator(int userId);
         Task<IList<NoteModel>> SearchNotes(int userId, string searchWord);
 
     }

@@ -35,6 +35,51 @@ namespace RepositoryLayer.Service
             this.configuration = configuration;
         }
 
+        public SqlConnection GetConnection(string connectionName)
+        {
+            SqlConnection sqlConnection = new SqlConnection(configuration["ConnectionStrings:connectionDb"]);
+            sqlConnection.Open();
+            return sqlConnection;
+        }
+
+        public SqlCommand GetCommand(string command)
+        {
+            string connection = "";
+            SqlConnection sqlConnection = GetConnection(connection);
+            SqlCommand sqlCommand = new SqlCommand(command, sqlConnection);
+            sqlCommand.CommandType = CommandType.StoredProcedure;
+            return sqlCommand;
+        }
+
+        class StoredProcedureParameterData
+        {
+            public StoredProcedureParameterData(string name, dynamic value)
+            {
+                this.name = name;
+                this.value = value;
+            }
+
+            public string name { get; set; }
+            public dynamic value { get; set; }
+        }
+        private async Task<DataTable> StoredProcedureExecuteReader(string spName, IList<StoredProcedureParameterData> spParams)
+        {
+            try
+            {
+                SqlCommand command = GetCommand(spName);
+                for (int i = 0; i < spParams.Count; i++)
+                {
+                    command.Parameters.AddWithValue(spParams[i].name, spParams[i].value);
+                }
+                DataTable table = new DataTable();
+                SqlDataReader dataReader = await command.ExecuteReaderAsync();
+                table.Load(dataReader);
+                return table;
+            }
+            catch (Exception e)
+            { throw e; }
+        }
+
         /// <summary>
         /// Add Label method
         /// </summary>
@@ -45,34 +90,26 @@ namespace RepositoryLayer.Service
         {
             try
             {
-                SqlConnection sqlConnection = new SqlConnection(configuration["ConnectionStrings:connectionDb"]);
-                SqlCommand sqlCommand = new SqlCommand("AddLabel", sqlConnection);
-                sqlCommand.CommandType = CommandType.StoredProcedure;
-                sqlCommand.Parameters.AddWithValue("@Label", showLabel.Label);
-                sqlCommand.Parameters.AddWithValue("@CreatedDate", DateTime.Now);
-                sqlCommand.Parameters.AddWithValue("@ModifiedDate", DateTime.Now);
-                sqlCommand.Parameters.AddWithValue("@UserId", userId);
-          
-                sqlConnection.Open();
-                SqlDataReader sqlDataReader = await sqlCommand.ExecuteReaderAsync();
-                var userData = new LabelModel();
-                while (sqlDataReader.Read())
+                List<StoredProcedureParameterData> paramList = new List<StoredProcedureParameterData>();
+                paramList.Add(new StoredProcedureParameterData("@Label", showLabel.Label));
+                paramList.Add(new StoredProcedureParameterData("@CreatedDate", DateTime.Now));
+                paramList.Add(new StoredProcedureParameterData("@ModifiedDate", DateTime.Now));
+                paramList.Add(new StoredProcedureParameterData("@UserId", userId));
+                DataTable dataTable = await StoredProcedureExecuteReader("AddLabel", paramList);
+                var labelData = new LabelModel();
+                 
+                foreach (DataRow row in dataTable.Rows)
                 {
-                    userData = new LabelModel();
-                    userData.Id = Convert.ToInt32(sqlDataReader["Id"]);
+                    labelData = new LabelModel();
+                    labelData.Id = (int)row["Id"];
+                    labelData.Label = row["Label"].ToString();
+                    labelData.CreatedDate = Convert.ToDateTime(row["CreatedDate"]);
+                    labelData.ModifiedDate = Convert.ToDateTime(row["ModifiedDate"]);
+                    labelData.UserId = (int)row["UserId"];
                 }
-                sqlDataReader.Close();
-                if (userData != null)
+                if (labelData.Label != null)
                 {
-                    var showResponse = new LabelModel()
-                    {
-                        Id = userData.Id,
-                        Label = showLabel.Label,
-                        CreatedDate = DateTime.Now,
-                        ModifiedDate = DateTime.Now,
-                        UserId = userId
-                    };
-                    return showResponse;
+                    return labelData;
                 }
                 else
                 {
@@ -96,7 +133,13 @@ namespace RepositoryLayer.Service
         {
             try
             {
-                SqlConnection sqlConnection = new SqlConnection(configuration["ConnectionStrings:connectionDb"]);
+                List<StoredProcedureParameterData> paramList = new List<StoredProcedureParameterData>();
+                paramList.Add(new StoredProcedureParameterData("@Id",labelId));
+                paramList.Add(new StoredProcedureParameterData("@Label", showLabelModel.Label));
+                paramList.Add(new StoredProcedureParameterData("@ModifiedDate", DateTime.Now));
+                paramList.Add(new StoredProcedureParameterData("@UserId", userId));
+                return null;
+                /*SqlConnection sqlConnection = new SqlConnection(configuration["ConnectionStrings:connectionDb"]);
                 SqlCommand sqlCommand = new SqlCommand("UpdateLabel", sqlConnection);
                 sqlCommand.CommandType = CommandType.StoredProcedure;
                 sqlCommand.Parameters.AddWithValue("@Id", labelId);
@@ -128,7 +171,7 @@ namespace RepositoryLayer.Service
                 else
                 {
                     return null;
-                }
+                }*/
             }
             catch (Exception exception)
             {

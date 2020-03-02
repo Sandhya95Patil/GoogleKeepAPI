@@ -243,7 +243,7 @@ namespace GoogleKeepAPI.Controllers
         }
 
         [HttpPost]
-        [Route("{noteId}/SetColor")]
+        [Route("{noteId}/Color")]
         public async Task<IActionResult> ChangeColor(int noteId, ColorModel colorModel)
         {
             try
@@ -457,7 +457,7 @@ namespace GoogleKeepAPI.Controllers
             {
                 var claim = Convert.ToInt32(HttpContext.User.Claims.FirstOrDefault(c => c.Type == "Id").Value);
                 var data = await noteBL.NoteLabelCollaborator(claim);
-                if (data != null)
+                if (!data.Equals(null))
                 {
                     return this.Ok(new { status = "true", message = "Notes Label Collaborator", data });
                 }
