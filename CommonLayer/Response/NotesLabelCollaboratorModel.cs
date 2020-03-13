@@ -1,0 +1,27 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace CommonLayer.Response
+{
+    public class NotesLabelCollaboratorModel
+    {
+        public int NoteId { get; set; }
+        public string Title { get; set; }
+        public string Description { get; set; }
+        public DateTime Reminder { get; set; }
+        public string Color { get; set; }
+        public string Image { get; set; }
+        public bool IsArchive { get; set; }
+        public bool IsPin { get; set; }
+        public bool IsTrash { get; set; }
+        public DateTime CreatedDate { get; set; }
+        public DateTime ModifiedDate { get; set; }
+        public int UserId { get; set; }
+        public string Label { get; set; }
+        public int LabelId { get; set; }
+        public int ReceiverId { get; set; }
+        public string ReceiverProfile { get; set; }
+
+    }
+}
