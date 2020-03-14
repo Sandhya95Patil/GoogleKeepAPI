@@ -10,6 +10,7 @@ namespace RepositoryLayer.Interface
     using CommonLayer.Response;
     using CommonLayer.ShowModel;
     using Microsoft.AspNetCore.Http;
+    using System.Collections.Generic;
     using System.Threading.Tasks;
 
     /// <summary>
@@ -45,6 +46,9 @@ namespace RepositoryLayer.Interface
         /// <returns>returns the reset password</returns>
         Task<string> ResetPassword(ResetModel resetModel);
         Task<RegisterResponseModel> Profile(IFormFile file, int userId);
+        Task<List<RegisterModel>> GetUsers();
+
+        Task SendNotification(PushNotificationItem notification);
 
     }
 }

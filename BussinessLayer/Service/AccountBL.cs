@@ -13,6 +13,7 @@ namespace BussinessLayer.Service
     using Microsoft.AspNetCore.Http;
     using RepositoryLayer.Interface;
     using System;
+    using System.Collections.Generic;
     using System.Threading.Tasks;
 
     /// <summary>
@@ -114,6 +115,30 @@ namespace BussinessLayer.Service
                     return null;
                 }
             }  
+            catch (Exception exception)
+            {
+                throw new Exception(exception.Message);
+            }
+        }
+
+        public Task<List<RegisterModel>> GetUsers()
+        {
+            try
+            {
+                return accountRL.GetUsers();
+            }
+            catch (Exception exception)
+            {
+                throw new Exception(exception.Message);
+            }
+        }
+
+        public Task SendNotification(PushNotificationItem notification)
+        {
+            try
+            {
+                return accountRL.SendNotification(notification);
+            }
             catch (Exception exception)
             {
                 throw new Exception(exception.Message);

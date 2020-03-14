@@ -394,5 +394,63 @@ namespace RepositoryLayer.Service
                 throw new Exception(exception.Message);
             }
         }
+
+        public async Task<List<RegisterModel>> GetUsers()
+        {
+            try
+            {
+                List<StoredProcedureParameterData> paramList = new List<StoredProcedureParameterData>();
+                DataTable table = await StoredProcedureExecuteReader("GetAllUsers", paramList);
+                List<RegisterModel> userList = new List<RegisterModel>();
+                var userData = new RegisterModel();
+                foreach (DataRow row in table.Rows)
+                {
+                    userData = new RegisterModel();
+                    userData.Id = (int)row["Id"];
+                    userData.FirstName = row["FirstName"].ToString();
+                    userData.LastName = row["LastName"].ToString();
+                    userData.Email = row["Email"].ToString();
+                    userData.MobileNumber = row["MobileNumber"].ToString();
+                    userData.Profile = row["Profile"].ToString();
+                    userData.Service = row["Service"].ToString();
+                    userData.UserType = row["UserType"].ToString();
+                    userList.Add(userData);
+                }
+                if (userList.Count > 0)
+                {
+                    return userList;
+                }
+                else
+                {
+                    return null;
+                }
+            }
+            catch (Exception exception)
+            {
+                throw new Exception(exception.Message);
+            }
+        }
+
+        public async Task SendNotification(PushNotificationItem notification)
+        {
+            var serverKey = configuration["Firebase:ServerKey"];
+
+            List<RegisterModel> usersList = await this.GetUsers();
+            foreach (var email in usersList)
+            {
+                using (var fcm = new FCMSender(serverKey, email.FirstName))
+                {
+                    fcm.SendAsync(email.Email,
+                         new
+                         {
+                             notification = new
+                             {
+                                 title = notification.Title,
+                                 body = notification.Body
+                             },
+                         });
+                }
+            }
+        }
     }
 }

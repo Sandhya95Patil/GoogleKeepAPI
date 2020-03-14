@@ -175,7 +175,38 @@ namespace GoogleKeepAPI.Controllers
             }
         }
 
-   /*     [HttpGet]
+        [HttpGet]
+        [Route("")]
+        [AllowAnonymous]
+        public async Task<IActionResult> GetUsers()
+        {
+            try
+            {
+                var data = await accountBL.GetUsers();
+                if (data != null)
+                {
+                    return this.Ok(new { status = "true", message = "Get All Users", data });
+                }
+                else
+                {
+                    return this.BadRequest(new { status = "False", message = "Failed To Get Users" });
+                }
+            }
+            catch (Exception exception)
+            {
+                return this.BadRequest(new { message = exception.Message });
+            }
+        }
+
+        [HttpPost]
+        [Route("PushNotification")]
+        [AllowAnonymous]
+        public async Task Send(PushNotificationItem pushNotificationItem)
+        {
+            await accountBL.SendNotification(pushNotificationItem);
+        }
+
+        [HttpGet]
         [Route("signin-facebook")]
         [AllowAnonymous]
         public IActionResult Facebook()
@@ -185,9 +216,9 @@ namespace GoogleKeepAPI.Controllers
             {
                 RedirectUri = Url.Action("HandleExternalLogin", "Account")
             };
-
+          
             return Challenge(authenticationProperties, "Facebook");
-        }*/
+        }
 
         [HttpGet]
         [Route("signin-google")]

@@ -466,8 +466,8 @@ namespace GoogleKeepAPI.Controllers
         {
             try
             {
-                //var claim = Convert.ToInt32(HttpContext.User.Claims.FirstOrDefault(c => c.Type == "Id").Value);
-                var claim = 8;
+                var claim = Convert.ToInt32(HttpContext.User.Claims.FirstOrDefault(c => c.Type == "Id").Value);
+              //  var claim = 8;
                 var data = await noteBL.AddCollaborator(claim, noteId, showCollaboratorModel);
                 if (data != null)
                 {

@@ -580,13 +580,13 @@ namespace RepositoryLayer.Service
             }
         }
 
-        /// <summary>
-        /// Delete Reminder method
-        /// </summary>
-        /// <param name="userId">userId parameter</param>
-        /// <param name="noteId">noteId parameter</param>
-        /// <returns>return the delete reminder</returns>
-        public async Task<string> DeleteReminder(int userId, int noteId)
+            /// <summary>
+            /// Delete Reminder method
+            /// </summary>
+            /// <param name="userId">userId parameter</param>
+            /// <param name="noteId">noteId parameter</param>
+            /// <returns>return the delete reminder</returns>
+            public async Task<string> DeleteReminder(int userId, int noteId)
         {
             try
             {

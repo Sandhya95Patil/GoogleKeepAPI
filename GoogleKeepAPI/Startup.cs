@@ -86,8 +86,8 @@ namespace GoogleKeepAPI
                 };
             });
             ////End for token
-
-      /*      ////This is for social login using facebook
+/*
+            ////This is for social login using facebook
             services.AddAuthentication(options =>
             {
                 options.DefaultChallengeScheme = FacebookDefaults.AuthenticationScheme;
@@ -98,7 +98,7 @@ namespace GoogleKeepAPI
           {
               Options.AppId = Configuration["Facebook:AppId"];
               Options.AppSecret = Configuration["Facebook:AppSecret"];
-          });*/
+          });
 
             ////This is for Social Login Using Google
             services.AddAuthentication(options =>
@@ -110,7 +110,7 @@ namespace GoogleKeepAPI
             {
                 options.ClientId = Configuration["Google:ClientId"];
                 options.ClientSecret = Configuration["Google:ClientSecret"];
-            }).AddCookie();
+            }).AddCookie();*/
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
         }
